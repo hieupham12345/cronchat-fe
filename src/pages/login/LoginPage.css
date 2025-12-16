@@ -1,0 +1,75 @@
+/* ===== Page background ===== */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000 100%);
+  padding: 16px;
+  color: #cacfd8;
+}
+
+/* ===== Card container ===== */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px 24px 32px;
+  border-radius: 16px;
+  border: 1px solid #1f2937;
+  background: rgba(2, 6, 23, 0.96);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(16px);
+}
+
+/* ===== Header ===== */
+.login-title {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.login-env {
+  font-size: 14px;
+  text-align: center;
+  color: #dfd3d3;
+  margin-bottom: 20px;
+}
+
+/* ===== Tabs ===== */
+.login-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  padding: 2px;
+}
+
+.login-tab {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 999px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  background: transparent;
+  color: #9ca3af;
+}
+
+.login-tab.active {
+  background: #111827;
+  color: #f9fafb;
+}
+
+/* ===== Responsive tweak ===== */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .login-title {
+    font-size: 20px;
+  }
+}

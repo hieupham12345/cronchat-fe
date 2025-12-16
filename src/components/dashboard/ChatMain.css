@@ -1,0 +1,1629 @@
+/* Avatar circle in Add Member popup */
+.user-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1f2937; /* xám đậm */
+  color: #e5e7eb;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* để ảnh không bị vuông */
+  flex-shrink: 0; /* không bị méo khi container co lại */
+}
+
+/* IMG bên trong avatar circle (dùng chung mini UI) */
+.user-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+/* Tag Owner nhỏ sau tên */
+.user-role-tag {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(37, 99, 235, 0.18);
+  color: #60a5fa;
+}
+
+  /* ===== Inputs ===== */
+.form-input-search {
+  width: 92.7%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #e5e7eb;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.form-input-search::placeholder {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.form-input-search:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+  background: #020617;
+}
+
+.remove-member-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  background: #020617;
+  color: #f9fafb;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.remove-member-btn:hover:not(:disabled) {
+  background: #7f1d1d;
+  border-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.remove-member-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* feedback message */
+.feedback-message {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.feedback-success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.feedback-error {
+  background: rgba(248, 113, 113, 0.08);
+  color: #fca5a5;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+/* confirm overlay */
+.confirm-remove-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+}
+
+.confirm-remove-modal {
+  background: #020617;
+  border-radius: 12px;
+  padding: 16px 18px 14px;
+  border: 1px solid #1f2937;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+}
+
+.confirm-remove-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.confirm-remove-text {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+.confirm-remove-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirm-remove-cancel-btn,
+.confirm-remove-ok-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.confirm-remove-ok-btn {
+  background: radial-gradient(circle at top left, #dc2626, #7f1d1d);
+  border-color: #b91c1c;
+}
+
+.confirm-remove-cancel-btn:disabled,
+.confirm-remove-ok-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Overlay dùng chung cho mini popup (Add member + Delete member) */
+.mini-popup-overlay,
+.confirm-remove-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+}
+
+/* Modal chung */
+.mini-popup-modal,
+.confirm-remove-modal {
+  background: #020617;
+  border-radius: 12px;
+  padding: 16px 18px 14px;
+  border: 1px solid #1f2937;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+}
+
+/* Title chung */
+.mini-popup-title,
+.confirm-remove-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Text chung */
+.mini-popup-text,
+.confirm-remove-text {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+/* Actions chung */
+.mini-popup-actions,
+.confirm-remove-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Nút cancel chung */
+.mini-popup-btn-cancel,
+.confirm-remove-cancel-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+/* Nút primary (OK / Add) chung */
+.mini-popup-btn-primary{
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  background: radial-gradient(circle at top left, #0400ff, #2c4597);
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.confirm-remove-ok-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  background: radial-gradient(circle at top left, #dc2626, #7f1d1d);
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.mini-popup-btn-cancel:disabled,
+.mini-popup-btn-primary:disabled,
+.confirm-remove-cancel-btn:disabled,
+.confirm-remove-ok-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* =========================
+   INPUT BAR (Zalo-like)
+========================= */
+.chat-input-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-top: 1px solid #111827;
+  background: linear-gradient(180deg, rgba(2,6,23,0.75), rgba(2,6,23,0.95));
+  backdrop-filter: blur(8px);
+}
+
+/* wrap textarea + preview */
+.chat-input-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0; /* tránh overflow ngang */
+}
+
+/* textarea nhìn giống app chat */
+.chat-input {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid #1f2937;
+  background: radial-gradient(circle at top left, #0b1220, #020617);
+  color: #e5e7eb;
+
+  padding: 10px 12px;
+  line-height: 1.35;
+  font-size: 14px;
+
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: #334155;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+
+/* =========================
+   PREVIEW STRIP (Zalo-like)
+========================= */
+.chat-image-preview-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+  border: 1px solid #111827;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.55);
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* firefox */
+}
+
+.chat-image-preview-strip::-webkit-scrollbar {
+  display: none; /* chrome */
+}
+
+.chat-image-preview-item {
+  position: relative;
+  flex: 0 0 auto;
+
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+
+  border: 1px solid #1f2937;
+  background: #0b1220;
+  overflow: hidden;
+}
+
+.chat-image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* nút xóa nhỏ gọn như zalo */
+.chat-image-remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+
+  display: grid;
+  place-items: center;
+
+  cursor: pointer;
+  line-height: 1;
+}
+
+.chat-image-remove-btn:hover {
+  background: rgba(0,0,0,0.75);
+}
+
+.chat-image-remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================
+   UPLOAD BUTTON (pretty)
+========================= */
+.chat-upload-btn {
+  flex: 0 0 auto;
+
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+
+  border: 1px solid #1f2937;
+  background: radial-gradient(circle at top left, #111827, #020617);
+  color: #e5e7eb;
+
+  display: grid;
+  place-items: center;
+
+  cursor: pointer;
+  transition: transform 0.06s ease, border-color 0.12s ease;
+}
+
+.chat-upload-btn:hover {
+  border-color: #334155;
+}
+
+.chat-upload-btn:active {
+  transform: translateY(1px);
+}
+
+.chat-upload-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* =========================
+   SEND BUTTON (fix "cấm gửi")
+========================= */
+.chat-send-btn {
+  flex: 0 0 auto;
+
+  width: 44px;
+  height: 40px;
+  border-radius: 999px;
+
+  border: 1px solid #1f2937;
+  background: rgba(15,23,42,0.6);
+  color: #9ca3af;
+
+  display: grid;
+  place-items: center;
+
+  cursor: not-allowed;   /* mặc định khi disabled */
+  opacity: 0.85;
+  transition: transform 0.06s ease, filter 0.12s ease, opacity 0.12s ease;
+}
+
+/* khi canSend = true thì bật style "active" */
+.chat-send-btn-active {
+  background: linear-gradient(180deg, rgba(59,130,246,0.35), rgba(59,130,246,0.18));
+  border-color: rgba(59,130,246,0.45);
+  color: #e5e7eb;
+
+  cursor: pointer;
+  opacity: 1;
+}
+
+.chat-send-btn-active:hover {
+  filter: brightness(1.06);
+}
+
+.chat-send-btn-active:active {
+  transform: translateY(1px);
+}
+
+/* disabled thật sự vẫn nhìn "tắt" rõ ràng */
+.chat-send-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ========== IMAGE THUMB ========== */
+.message-bubble-image {
+  padding: 0px;
+}
+
+.message-images {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.message-image-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.message-image-thumb {
+  display: block;
+  width: 160px;          /* ✅ thumb size */
+  height: 120px;         /* ✅ thumb size */
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.message-image-btn:hover .message-image-thumb {
+  transform: scale(1.02);
+  opacity: 0.95;
+}
+
+.message-image-caption {
+  margin-top: 8px;
+  opacity: 0.9;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* ========== MODAL PREVIEW ========== */
+.img-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.img-preview-modal {
+  position: relative;
+  width: min(920px, 95vw);     /* ✅ giới hạn khung */
+  height: min(620px, 85vh);    /* ✅ giới hạn khung */
+  background: rgba(18, 18, 18, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;         /* ✅ không vỡ ảnh, nhưng vẫn bị giới hạn */
+}
+
+.img-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  cursor: pointer;
+}
+
+.img-preview-close:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .message-image-thumb {
+    width: 130px;
+    height: 98px;
+  }
+
+  .img-preview-modal {
+    width: 95vw;
+    height: 70vh;
+  }
+}
+
+/* ====== IMAGE GRID: max 3 per row ====== */
+.message-images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* max 3 cột */
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* mỗi ảnh là 1 button ô vuông/rect đẹp */
+.message-image-btn {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* thumbnail */
+.message-image-thumb {
+  width: 100%;
+  height: 110px;              /* chỉnh giống pending nếu cần */
+  object-fit: cover;          /* crop cho đều */
+  display: block;
+}
+
+/* responsive: màn nhỏ thì 2 cột */
+@media (max-width: 520px) {
+  .message-images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* nếu chỉ có 1 ảnh -> cho nó to hơn chút (optional) */
+.message-images:has(.message-image-btn:only-child) .message-image-thumb {
+  height: 180px;
+}
+/* 1 ảnh -> chiếm full row */
+.message-images:has(.message-image-btn:only-child) {
+  grid-template-columns: 1fr;
+}
+
+/* 2 ảnh -> 2 cột */
+.message-images:has(.message-image-btn:nth-child(2)):not(:has(.message-image-btn:nth-child(3))) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* ===========================
+   Hover feel (right-click ready)
+/* =========================== */
+.message-item {
+  cursor: context-menu; 
+  padding: 4px 6px;
+} 
+
+.message-item.message-system {
+  cursor: default;
+}
+
+/* optional: hơi sáng khi hover */
+.message-item:hover .message-bubble,
+.message-item:hover .message-bubble-image {
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+/* ===========================
+   Context menu (React + Reply)
+=========================== */
+.cc-context-menu {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 10px;
+  border-radius: 12px;
+
+  background: rgba(2, 6, 23, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+
+  user-select: none;
+}
+
+.cc-context-reactions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cc-context-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.cc-context-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(147, 197, 253, 0.35);
+  background: rgba(30, 41, 59, 0.65);
+}
+
+.cc-context-btn:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+.cc-context-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.cc-context-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.cc-context-reply {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(15, 23, 42, 0.55);
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+  white-space: nowrap;
+}
+
+.cc-context-reply:hover {
+  border-color: rgba(147, 197, 253, 0.35);
+  background: rgba(30, 41, 59, 0.65);
+  transform: translateY(-1px);
+}
+
+.cc-context-reply:active {
+  transform: translateY(0px) scale(0.99);
+}
+
+/* ========== Reply bar ========== */
+.chat-reply-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 8px 10px;
+  margin: 0 0 8px 0;
+
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.chat-reply-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.chat-reply-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #bfdbfe;
+  flex: 0 0 28px;
+}
+
+.chat-reply-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chat-reply-title {
+  font-size: 12px;
+  color: #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-reply-snippet {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 520px;
+}
+
+.chat-reply-cancel {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: #e5e7eb;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform 0.08s ease, border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.chat-reply-cancel:hover {
+  transform: translateY(-1px);
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(30, 41, 59, 0.55);
+}
+
+.chat-reply-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================
+   REPLY PREVIEW (msg.reply)
+   - đặt ngay trên bubble
+========================= */
+
+.cc-reply-preview {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  text-align: left;
+
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 10px;
+
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+  user-select: none;
+
+  /* khớp style spacing của message-body */
+  margin: 4px 0 6px;
+}
+
+.cc-reply-preview:hover {
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.28);
+  transform: translateY(-1px);
+}
+
+.cc-reply-bar {
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.9);
+  flex: 0 0 3px;
+}
+
+.cc-reply-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cc-reply-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cc-reply-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e5e7eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.cc-reply-type {
+  font-size: 11px;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  padding: 1px 6px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.cc-reply-snippet {
+  font-size: 12px;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.95;
+}
+
+/* Nếu message có reply, bubble nhìn gọn hơn một tí */
+.message-has-reply .message-bubble {
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+}
+
+/* =========================
+   JUMP + HIGHLIGHT khi click reply preview
+========================= */
+
+.cc-msg-highlight {
+  animation: ccMsgPulse 1.2s ease;
+}
+
+@keyframes ccMsgPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    filter: brightness(1);
+  }
+  30% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22);
+    filter: brightness(1.08);
+  }
+  70% {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+    filter: brightness(1.04);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    filter: brightness(1);
+  }
+}
+
+/* =========================
+   COPY TEXT: đảm bảo bubble vẫn bôi đen copy được
+========================= */
+.message-bubble {
+  user-select: text;
+  position: relative;
+
+}
+
+/* mấy cái button không cho nó “ăn” selection */
+.message-image-btn,
+.cc-reply-preview,
+.cc-context-btn,
+.cc-context-reply {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+
+/* 1) Cho bubble có “độ cao” để bị chèn không bị che chữ */
+.message-bubble {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 14px; /* chừa chỗ để reaction chồng lên */
+}
+
+/* 2) Reaction: kéo lên chèn vào bubble */
+.cc-reactions-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  /* nền + border giống pill */
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #020617;
+  border: 1px solid #1f2937;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+
+  /* 👇 trick: kéo lên đè vào bubble nhưng vẫn nằm trong flow */
+  margin-top: -12px;
+  z-index: 2;
+  position: relative;
+
+  /* canh trái mặc định */
+  align-self: flex-start;
+}
+
+/* 3) Tin nhắn của mình canh phải */
+.message-me .cc-reactions-row {
+  align-self: flex-end;
+}
+
+/* 4) Bù lại khoảng cách dưới để message sau không “dính” */
+.message-body {
+  padding-bottom: 6px; /* hoặc 8px tùy mắt */
+}
+
+/* Reaction pill giữ như cũ */
+.cc-reaction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #e5e7eb;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cc-reaction-pill.is-me {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+/* =========================
+   REACTION – HOVER EFFECT
+   ========================= */
+
+/* Mặc định: reaction hơi chìm */
+.cc-reactions-row {
+  opacity: 0.75;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+/* Hover bubble → reaction nổi rõ */
+.message-body:hover .cc-reactions-row {
+  opacity: 1;
+}
+
+/* Hover từng reaction pill */
+.cc-reaction-pill {
+  transition:
+    transform 120ms ease,
+    background 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.cc-reaction-pill:hover {
+  transform: translateY(-1px) scale(1.05);
+  background: rgba(148, 163, 184, 0.22);
+  border-color: rgba(148, 163, 184, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Reaction của mình → hover nổi hơn tí */
+.cc-reaction-pill.is-me:hover {
+  background: rgba(59, 130, 246, 0.28);
+  border-color: rgba(59, 130, 246, 0.55);
+}
+
+/* Optional: hover bubble thì bubble nổi nhẹ (Messenger style) */
+.message-body:hover .message-bubble {
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+}
+
+.chat-window {
+  position: relative; /* ✅ để absolute button bám trong khung chat */
+}
+
+/* wrapper phải "ôm" đúng vùng scroll để absolute bám chuẩn */
+.chat-window-wrap{
+  position: relative;
+}
+
+/* nút jump xuống đáy */
+.jump-bottom-btn{
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 999;
+
+  margin-right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  user-select: none;
+
+  /* dễ thấy trên dark theme */
+  background: rgba(15, 23, 42, 0.92);           /* slate-900-ish */
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.92);
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(56, 189, 248, 0.18);         /* viền xanh nhẹ cho nổi */
+  backdrop-filter: blur(8px);
+
+  transition: transform 120ms ease, opacity 120ms ease, filter 120ms ease;
+
+  font-size: 26px;
+}
+
+.jump-bottom-btn:hover{
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.jump-bottom-btn:active{
+  transform: translateY(0) scale(0.98);
+}
+
+.chat-input-row{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  position:relative;
+}
+
+.cc-emoji-wrap{
+  position:relative;
+}
+
+.cc-emoji-btn{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(20,20,20,0.78);
+  color:#fff;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+}
+
+.cc-emoji-pop{
+  position:absolute;
+  bottom:48px;
+  left:0;
+  z-index:50;
+  width:280px;
+  max-height:220px;
+  overflow:auto;
+
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(20,20,20,0.92);
+  backdrop-filter: blur(10px);
+  border-radius:16px;
+  padding:10px;
+  box-shadow:0 14px 34px rgba(0,0,0,0.45);
+}
+
+.cc-emoji-grid{
+  display:grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap:6px;
+}
+
+.cc-emoji-item{
+  height:32px;
+  width:32px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:transparent;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+}
+
+.cc-emoji-item:hover{
+  background:rgba(255,255,255,0.08);
+}
+
+.cc-emoji-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cc-emoji-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(20,20,20,0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 18px;
+}
+
+.cc-emoji-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cc-emoji-pop {
+  position: absolute;
+  bottom: 46px;
+  right: 0;
+  width: 360px;
+  max-width: min(360px, calc(100vw - 24px));
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(18,18,18,0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.cc-emoji-head {
+  padding: 10px 10px 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.cc-emoji-search {
+  width: 100%;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  padding: 0 12px;
+  outline: none;
+  font-size: 13px;
+}
+
+.cc-emoji-search::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+.cc-emoji-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.cc-emoji-tab {
+  width: 34px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cc-emoji-tab.is-active {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.cc-emoji-tab.is-dim {
+  opacity: 0.5;
+}
+
+.cc-emoji-tabs-spacer {
+  flex: 1;
+}
+
+.cc-emoji-clear {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cc-emoji-grid-wrap {
+  max-height: 280px;
+  overflow: auto;
+  padding: 10px;
+}
+
+.cc-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 6px;
+}
+
+.cc-emoji-item {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cc-emoji-item:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.10);
+}
+
+.cc-emoji-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.cc-emoji-hint {
+  flex: 1;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cc-emoji-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+  cursor: pointer;
+}
+
+/* ===== SHARED SCROLLBAR ===== */
+
+.cc-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #111827 #020617;
+}
+
+.cc-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cc-scroll::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+.cc-scroll::-webkit-scrollbar-thumb {
+  background: #111827;
+  border-radius: 999px;
+}
+
+.cc-day-divider{
+  position: sticky;
+  top: 6px;
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px;
+  margin-bottom: 12px;
+  margin-left: 6px;
+  background: rgba(10,10,10,0.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.cc-day-divider-arrow{
+  font-size: 22px;          /* dấu “lớn hơn” rõ ràng */
+  line-height: 1;
+  font-weight: 900;
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.cc-day-divider-text{
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+
+/* =========================
+   SYSTEM MESSAGE (Messenger-like)
+   ========================= */
+
+/* Container row: center, minimal spacing */
+.message-item.message-system{
+  display: flex;
+  justify-content: center;
+  padding: 8px 10px;
+  margin: 6px 0;
+}
+
+/* Hide avatar + meta for system */
+.message-item.message-system .message-avatar{
+  display: none !important;
+}
+
+.message-item.message-system .message-meta{
+  display: none !important;
+}
+
+.message-item.message-system .message-footer{
+  display: none !important;
+}
+
+/* Body for system: center */
+.message-item.message-system .message-body{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Make bubble become a small centered pill */
+.message-item.message-system .message-bubble{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 500;
+
+  color: rgba(255,255,255,0.72);
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  /* subtle messenger-ish pill */
+  background: rgba(255,255,255,0.06) !important;
+  backdrop-filter: blur(6px);
+}
+
+/* Stop system bubble from inheriting "me" alignment/bubble sizing */
+.message-item.message-system.message-me .message-bubble{
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* No context menu on system bubble (optional safety) */
+.message-item.message-system .message-bubble{
+  user-select: text;
+  cursor: default;
+}
+
+/* =========================
+   Type colors (add/remove/rename)
+   (your sysClass already sets: sys-add, sys-remove, sys-rename)
+   ========================= */
+
+.message-item.message-system.sys-add .message-bubble{
+  color: rgba(130, 220, 160, 0.92);
+  background: rgba(40, 140, 80, 0.16) !important;
+  border: 1px solid rgba(90, 210, 140, 0.22);
+}
+
+.message-item.message-system.sys-remove .message-bubble{
+  color: rgba(255, 155, 155, 0.92);
+  background: rgba(180, 60, 60, 0.16) !important;
+  border: 1px solid rgba(255, 130, 130, 0.22);
+}
+
+.message-item.message-system.sys-rename .message-bubble{
+  color: rgba(170, 200, 255, 0.92);
+  background: rgba(70, 120, 200, 0.16) !important;
+  border: 1px solid rgba(150, 190, 255, 0.22);
+}
+
+/* =========================
+   Optional: auto icon by type (uses :before)
+   ========================= */
+
+.message-item.message-system .message-bubble::before{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 18px;
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.80);
+  content: "ℹ️";
+}
+
+.message-item.message-system.sys-add .message-bubble::before{
+  content: "👥";
+  background: rgba(90, 210, 140, 0.18);
+  color: rgba(130, 220, 160, 0.95);
+}
+
+.message-item.message-system.sys-remove .message-bubble::before{
+  content: "🚫";
+  background: rgba(255, 130, 130, 0.18);
+  color: rgba(255, 155, 155, 0.95);
+}
+
+.message-item.message-system.sys-rename .message-bubble::before{
+  content: "✏️";
+  background: rgba(150, 190, 255, 0.18);
+  color: rgba(170, 200, 255, 0.95);
+}
+
+/* =========================
+   Ensure reactions row never shows on system
+   ========================= */
+.message-item.message-system .cc-reactions-row{
+  display: none !important;
+}
+
+/* =========================
+   If your normal messages have max-width bubble, keep system compact
+   ========================= */
+.message-item.message-system .message-bubble{
+  max-width: min(620px, 92%);
+  text-align: center;
+  word-break: break-word;
+}
+
+.message-item.message-system .message-bubble{
+  background: transparent !important;
+  border: none !important;
+  padding: 0;
+}
+.message-item.message-system .message-bubble::before{
+  display: none;
+}
+
+/* ✅ Force center system row */
+.message-item.message-system{
+  width: 95%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ✅ Body không được “ăn” layout message thường */
+.message-item.message-system .message-body{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ✅ Bubble/pill đúng kiểu center */
+.message-item.message-system .message-bubble{
+  margin: 0 auto !important;
+  text-align: center;
+}
+
+.cc-chat-layout{
+  height: 100vh;          /* hoặc 100dvh cho chuẩn mobile */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chat-window-wrap{
+  flex: 1;
+  min-height: 0;          /* QUAN TRỌNG: cho phép overflow hoạt động trong flex */
+  position: relative;
+}
+
+.chat-window{
+  height: 100%;           /* thay vì max-height */
+  overflow-y: auto;
+}
+
+/* =========================
+   SEEN (Messenger-like)
+========================= */
+
+.cc-seen-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+
+  margin-top:6px;
+  gap:6px;
+
+  pointer-events:none; /* chỉ hiển thị thôi */
+}
+
+.cc-seen-avatars{
+  display:flex;
+  align-items:center;
+}
+
+.cc-seen-avatar{
+  width:16px;
+  height:16px;
+  border-radius:999px;
+  overflow:hidden;
+
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(20,20,20,0.75);
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  margin-left:-6px; /* overlap */
+}
+
+.cc-seen-avatar:first-child{
+  margin-left:0;
+}
+
+.cc-seen-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.cc-seen-fallback{
+  font-size:10px;
+  line-height:1;
+  color:rgba(255,255,255,0.86);
+  user-select:none;
+}
+
+.cc-seen-more{
+  font-size:11px;
+  color:rgba(255,255,255,0.55);
+  user-select:none;
+}
+
+/* mấy message "me" thường avatar nằm bên phải -> seen row vẫn right ok */
+.message-item.message-me .cc-seen-row{
+  padding-right:2px;
+}

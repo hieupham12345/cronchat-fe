@@ -1,0 +1,6 @@
+services:
+  fe:
+    image: cronchat-fe:latest
+    ports:
+      - "8888:80"       # ép FE chạy port 8888 trên host
+    restart: always
