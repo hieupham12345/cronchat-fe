@@ -1,16 +1,13 @@
 
----
 
 # 📄 README.md — **CronChat Frontend**
 
-```md
 # CronChat Frontend
 
 🚀 **CronChat Frontend** is a web client for the CronChat system, responsible for user interaction, realtime updates, and state synchronization with backend services.
 
 The frontend consumes REST APIs and WebSocket events in a structured way, focusing on responsiveness, predictable UI state, and maintainable component design.
 
----
 
 ## Overview
 
@@ -23,7 +20,6 @@ CronChat Frontend provides the user-facing interface for:
 
 The application emphasizes component isolation and clear data flow.
 
----
 
 ## Technology Stack
 
@@ -34,7 +30,6 @@ The application emphasizes component isolation and clear data flow.
 - **Realtime**: WebSocket
 - **HTTP Client**: Fetch API
 
----
 
 ## Features
 
@@ -58,4 +53,3 @@ The application emphasizes component isolation and clear data flow.
 - Client-side image compression before upload
 - Image preview and grid layout in chat
 ...
----
