@@ -518,9 +518,32 @@
 }
 
 .img-preview-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;         /* ✅ không vỡ ảnh, nhưng vẫn bị giới hạn */
+  max-width: 100%;
+  max-height: 100%;
+
+  width: auto;
+  height: auto;
+
+  object-fit: contain;
+  object-position: center;
+
+  display: block;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .img-preview-image {
+    max-width: 100vw;
+    max-height: 100dvh; /* ✅ fix Safari mobile */
+  }
+}
+
+/* PC / Laptop */
+@media (min-width: 1024px) {
+  .img-preview-image {
+    max-width: 90%;
+    max-height: 90%;
+  }
 }
 
 .img-preview-close {
@@ -607,9 +630,12 @@
 /* ===========================
    Hover feel (right-click ready)
 /* =========================== */
+
 .message-item {
+  display: flex;
   cursor: context-menu; 
   padding: 4px 6px;
+  width: 100%;
 } 
 
 .message-item.message-system {
@@ -806,7 +832,7 @@
 ========================= */
 
 .cc-reply-preview {
-  width: 100%;
+  width: 70%;
   display: flex;
   gap: 10px;
   align-items: stretch;
@@ -917,11 +943,6 @@
 /* =========================
    COPY TEXT: đảm bảo bubble vẫn bôi đen copy được
 ========================= */
-.message-bubble {
-  user-select: text;
-  position: relative;
-
-}
 
 /* mấy cái button không cho nó “ăn” selection */
 .message-image-btn,
@@ -933,12 +954,7 @@
 }
 
 
-/* 1) Cho bubble có “độ cao” để bị chèn không bị che chữ */
-.message-bubble {
-  position: relative;
-  z-index: 1;
-  padding-bottom: 14px; /* chừa chỗ để reaction chồng lên */
-}
+
 
 /* 2) Reaction: kéo lên chèn vào bubble */
 .cc-reactions-row {
@@ -967,10 +983,6 @@
   align-self: flex-end;
 }
 
-/* 4) Bù lại khoảng cách dưới để message sau không “dính” */
-.message-body {
-  padding-bottom: 6px; /* hoặc 8px tùy mắt */
-}
 
 /* Reaction pill giữ như cũ */
 .cc-reaction-pill {
@@ -1037,14 +1049,6 @@
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
 }
 
-.chat-window {
-  position: relative; /* ✅ để absolute button bám trong khung chat */
-}
-
-/* wrapper phải "ôm" đúng vùng scroll để absolute bám chuẩn */
-.chat-window-wrap{
-  position: relative;
-}
 
 /* nút jump xuống đáy */
 .jump-bottom-btn{
@@ -1339,38 +1343,6 @@
   border-radius: 999px;
 }
 
-.cc-day-divider{
-  position: sticky;
-  top: 6px;
-  z-index: 5;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 6px;
-  margin-bottom: 12px;
-  margin-left: 6px;
-  background: rgba(10,10,10,0.55);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.10);
-}
-
-.cc-day-divider-arrow{
-  font-size: 22px;          /* dấu “lớn hơn” rõ ràng */
-  line-height: 1;
-  font-weight: 900;
-  opacity: 0.95;
-  transform: translateY(-1px);
-}
-
-.cc-day-divider-text{
-  font-size: 12px;
-  letter-spacing: 0.3px;
-  opacity: 0.9;
-  white-space: nowrap;
-}
-
 
 /* =========================
    SYSTEM MESSAGE (Messenger-like)
@@ -1549,19 +1521,18 @@
   height: 100vh;          /* hoặc 100dvh cho chuẩn mobile */
   display: flex;
   flex-direction: column;
+  width: 100%;
+  min-width: 0;
   min-height: 0;
 }
 
 .chat-window-wrap{
-  flex: 1;
+  flex-grow: 1;
   min-height: 0;          /* QUAN TRỌNG: cho phép overflow hoạt động trong flex */
   position: relative;
+  display: flex;
 }
 
-.chat-window{
-  height: 100%;           /* thay vì max-height */
-  overflow-y: auto;
-}
 
 /* =========================
    SEEN (Messenger-like)
@@ -1626,4 +1597,47 @@
 /* mấy message "me" thường avatar nằm bên phải -> seen row vẫn right ok */
 .message-item.message-me .cc-seen-row{
   padding-right:2px;
+}
+
+
+/* ===== Day divider (system "chuyển ngày") ===== */
+.message-system.sys-day {
+  padding: 10px 6px;
+}
+
+.cc-day-divider {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+.cc-day-divider-line {
+  flex: 1;
+  height: 1px;
+  background: #1e293b;
+  opacity: 0.9;
+}
+
+.cc-day-divider-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  background: none;
+  border: 1px solid #1e293b;
+
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+
+.cc-day-divider-time {
+  font-weight: 500;
+  color: #94a3b8;
 }

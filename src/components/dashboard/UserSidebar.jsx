@@ -1,5 +1,5 @@
 // src/components/dashboard/UserSidebar.jsx
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import {
   getDirectChat,
   uploadAvatar,
@@ -9,6 +9,7 @@ import {
 } from '../../services/userService'
 import buildImageUrl from '../../utils/imageHandle.js' // 👈 IMPORT helper
 import './UserSidebar.css'
+
 
 function UserSidebar({
   user,
@@ -52,6 +53,7 @@ function UserSidebar({
 
   const [savingEdit, setSavingEdit] = useState(false)
   const [editError, setEditError] = useState('')
+
 
   const openEditUser = (u) => {
     setEditingUser(u)
@@ -407,7 +409,7 @@ function UserSidebar({
       : user?.username?.charAt(0).toUpperCase() || '?')
 
   return (
-    <>
+    <div class="user-left-box">
       {/* CURRENT USER (TOP) */}
       <div
         className="user-account-row "
@@ -435,7 +437,7 @@ function UserSidebar({
       </div>
 
       {/* USERS LIST SECTION */}
-      <div className="section">
+      <div className="section cc-scroll">
         <div className="section-title">Users</div>
 
         <div className="user-sidebar-search">
@@ -447,7 +449,7 @@ function UserSidebar({
           />
         </div>
 
-        <ul className="friends-list">
+        <ul className="friends-list cc-scroll">
           {loadingUsers && <li className="empty-text">Loading users...</li>}
 
           {!loadingUsers && userListError && (
@@ -517,142 +519,145 @@ function UserSidebar({
             })}
         </ul>
 
-        {/* MINI EDIT AVATAR / PROFILE PANEL */}
-        {editingUser && (
-          <div className="user-edit-mini">
-            <div className="user-edit-header">
-              <span>Edit profile: {editingUser.username}</span>
-              <button
-                type="button"
-                className="user-edit-close"
-                onClick={closeEditUser}
-                disabled={savingEdit || processingImage}
-              >
-                ✕
-              </button>
-            </div>
 
-            <div className="user-edit-body">
-              {/* Avatar preview */}
-              <div className="avatar-preview-row">
-                <div className="avatar-preview-box">
-                  {editForm.avatar_url ? (
-                    <img
-                      src={buildImageUrl(editForm.avatar_url)}
-                      alt="preview avatar"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="avatar-preview-placeholder">
-                      No avatar
-                    </span>
+      </div>
+              {/* MINI EDIT AVATAR / PROFILE PANEL */}
+        {editingUser && (
+          <div className="create-group-overlay"     onClick={closeEditUser}>
+            <div className="user-edit-mini">
+              <div className="user-edit-header">
+                <span>Edit profile: {editingUser.username}</span>
+                <button
+                  type="button"
+                  className="user-edit-close"
+                  onClick={closeEditUser}
+                  disabled={savingEdit || processingImage}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="user-edit-body">
+                {/* Avatar preview */}
+                <div className="avatar-preview-row">
+                  <div className="avatar-preview-box">
+                    {editForm.avatar_url ? (
+                      <img
+                        src={buildImageUrl(editForm.avatar_url)}
+                        alt="preview avatar"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="avatar-preview-placeholder">
+                        No avatar
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* File upload */}
+                <div className="form-row">
+                  <label>Upload image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                    disabled={processingImage}
+                  />
+                  {processingImage && (
+                    <div className="user-edit-info">Đang xử lý ảnh...</div>
+                  )}
+                  {compressedInfo && (
+                    <div className="user-edit-info">{compressedInfo}</div>
                   )}
                 </div>
-              </div>
 
-              {/* File upload */}
-              <div className="form-row">
-                <label>Upload image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageFileChange}
-                  disabled={processingImage}
-                />
-                {processingImage && (
-                  <div className="user-edit-info">Đang xử lý ảnh...</div>
+                {/* Full name */}
+                <div className="form-row">
+                  <label>Full name</label>
+                  <input
+                    className="form-input"
+                    type="text"
+                    value={editForm.full_name}
+                    onChange={(e) =>
+                      handleEditChange('full_name', e.target.value)
+                    }
+                    disabled={savingEdit || processingImage}
+                    placeholder="Your display name"
+                  />
+                </div>
+
+                {/* Divider */}
+                <div className="form-divider" />
+
+                {/* Change password */}
+                <div className="form-row">
+                  <label>Current password</label>
+                  <input
+                    className="form-input"
+                    type="password"
+                    value={editForm.current_password}
+                    onChange={(e) =>
+                      handleEditChange('current_password', e.target.value)
+                    }
+                    disabled={savingEdit || processingImage}
+                    placeholder="Current password"
+                  />
+                </div>
+
+                <div className="form-row">
+                  <label>New password</label>
+                  <input
+                    className="form-input"
+                    type="password"
+                    value={editForm.new_password}
+                    onChange={(e) =>
+                      handleEditChange('new_password', e.target.value)
+                    }
+                    disabled={savingEdit || processingImage}
+                    placeholder="New password (≥ 8 characters)"
+                  />
+                </div>
+
+                <div className="form-row">
+                  <label>Confirm new password</label>
+                  <input
+                    className="form-input"
+                    type="password"
+                    value={editForm.confirm_new_password}
+                    onChange={(e) =>
+                      handleEditChange('confirm_new_password', e.target.value)
+                    }
+                    disabled={savingEdit || processingImage}
+                    placeholder="Confirm new password"
+                  />
+                </div>
+
+                {editError && (
+                  <div className="user-edit-error">{editError}</div>
                 )}
-                {compressedInfo && (
-                  <div className="user-edit-info">{compressedInfo}</div>
-                )}
               </div>
 
-              {/* Full name */}
-              <div className="form-row">
-                <label>Full name</label>
-                <input
-                  className="form-input"
-                  type="text"
-                  value={editForm.full_name}
-                  onChange={(e) =>
-                    handleEditChange('full_name', e.target.value)
-                  }
+              <div className="user-edit-actions">
+                <button
+                  type="button"
+                  onClick={closeEditUser}
                   disabled={savingEdit || processingImage}
-                  placeholder="Your display name"
-                />
-              </div>
-
-              {/* Divider */}
-              <div className="form-divider" />
-
-              {/* Change password */}
-              <div className="form-row">
-                <label>Current password</label>
-                <input
-                  className="form-input"
-                  type="password"
-                  value={editForm.current_password}
-                  onChange={(e) =>
-                    handleEditChange('current_password', e.target.value)
-                  }
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
                   disabled={savingEdit || processingImage}
-                  placeholder="Current password"
-                />
+                >
+                  {savingEdit ? 'Saving...' : 'Save'}
+                </button>
               </div>
-
-              <div className="form-row">
-                <label>New password</label>
-                <input
-                  className="form-input"
-                  type="password"
-                  value={editForm.new_password}
-                  onChange={(e) =>
-                    handleEditChange('new_password', e.target.value)
-                  }
-                  disabled={savingEdit || processingImage}
-                  placeholder="New password (≥ 8 characters)"
-                />
-              </div>
-
-              <div className="form-row">
-                <label>Confirm new password</label>
-                <input
-                  className="form-input"
-                  type="password"
-                  value={editForm.confirm_new_password}
-                  onChange={(e) =>
-                    handleEditChange('confirm_new_password', e.target.value)
-                  }
-                  disabled={savingEdit || processingImage}
-                  placeholder="Confirm new password"
-                />
-              </div>
-
-              {editError && (
-                <div className="user-edit-error">{editError}</div>
-              )}
-            </div>
-
-            <div className="user-edit-actions">
-              <button
-                type="button"
-                onClick={closeEditUser}
-                disabled={savingEdit || processingImage}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveEdit}
-                disabled={savingEdit || processingImage}
-              >
-                {savingEdit ? 'Saving...' : 'Save'}
-              </button>
             </div>
           </div>
         )}
-      </div>
-    </>
+    </div>
   )
 }
 

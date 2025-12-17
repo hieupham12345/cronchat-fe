@@ -1,8 +1,11 @@
 // src/components/dashboard/DashboardHeader.jsx
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function DashboardHeader({ displayName, userRole, onLogout }) {
   const navigate = useNavigate();
+
+  const [showHeader, setShowHeader] = useState(false);
 
   return (
     <header className="dashboard-header">
@@ -45,6 +48,16 @@ function DashboardHeader({ displayName, userRole, onLogout }) {
             Admin
           </button>
         )}
+      </div>
+
+      <div className={`chat-header ${showHeader ? 'is-visible' : ''}`}>
+        ...
+        <button
+          className="chat-header-toggle"
+          onClick={() => setShowHeader(v => !v)}
+        >
+          ⌄
+        </button>
       </div>
 
       <div className="dashboard-header-right">

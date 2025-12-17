@@ -33,52 +33,91 @@ function ChatMessageItem({
   seenUsers = [], // [{user_id, full_name, avatar_url, last_seen_message_id, last_seen_at}]
   seenCount = null,
 }) {
-  if (!msg) return null
+  // ✅ avoid breaking hooks order if msg is sometimes null
+  const safeMsg = msg || {}
 
-  const messageType = msg.message_type || msg.type
+  const messageType = safeMsg.message_type || safeMsg.type
   const isSystem = messageType === 'system'
-  const isTemp = !!msg.is_temp
+  const isTemp = !!safeMsg.is_temp
 
   const isMe =
     currentUserId != null &&
-    msg.sender_id != null &&
-    Number(msg.sender_id) === Number(currentUserId)
+    safeMsg.sender_id != null &&
+    Number(safeMsg.sender_id) === Number(currentUserId)
 
-  const hasReply = !!msg.reply?.message_id
+  const hasReply = !!safeMsg.reply?.message_id
 
-  const sysClass =
-    isSystem && typeof msg.content === 'string'
-      ? (msg.content.includes('👥') ? 'sys-add'
-        : msg.content.includes('🚫') ? 'sys-remove'
-        : msg.content.includes('✏️') ? 'sys-rename'
-        : '')
-      : ''
+// ================================
+// ✅ NEW: day divider system message (0h UTC+7)
+// DB content format: '--- 2025-12-18 ---'
+// ================================
+const isDayDivider = useMemo(() => {
+  if (!isSystem) return false
 
-  const classes = [
-    'message-item',
-    isSystem ? 'message-system' : '',
-    sysClass,
-    isTemp ? 'message-temp' : '',
-    isMe ? 'message-me' : '',
-    hasReply ? 'message-has-reply' : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
+  // ✅ ưu tiên field explicit từ BE (nếu sau này có)
+  if (safeMsg?.system_kind === 'day_change') return true
+  if (safeMsg?.system_type === 'day_change') return true
+  if (safeMsg?.system_event === 'day_change') return true
 
-  const displayName = msg.sender_name || 'Unknown'
+  // ✅ strict check theo format DB hiện tại
+  const c = typeof safeMsg?.content === 'string'
+    ? safeMsg.content.trim()
+    : ''
+
+  if (!c) return false
+
+  // --- YYYY-MM-DD ---
+  return /^---\s*\d{4}-\d{2}-\d{2}\s*---$/.test(c)
+}, [
+  isSystem,
+  safeMsg?.system_kind,
+  safeMsg?.system_type,
+  safeMsg?.system_event,
+  safeMsg?.content,
+])
+
+  // ================================
+  // ✅ system class
+  // ================================
+  const sysClass = useMemo(() => {
+    if (!isSystem) return ''
+    const c = typeof safeMsg.content === 'string' ? safeMsg.content : ''
+    if (isDayDivider) return 'sys-day'
+    if (c.includes('👥')) return 'sys-add'
+    if (c.includes('🚫')) return 'sys-remove'
+    if (c.includes('✏️')) return 'sys-rename'
+    return ''
+  }, [isSystem, safeMsg, isDayDivider])
+
+  const classes = useMemo(() => {
+    return [
+      'message-item',
+      isSystem ? 'message-system' : '',
+      sysClass,
+      isTemp ? 'message-temp' : '',
+      isMe ? 'message-me' : '',
+      hasReply ? 'message-has-reply' : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+  }, [isSystem, sysClass, isTemp, isMe, hasReply])
+
+  const displayName = safeMsg.sender_name || 'Unknown'
   const initial = displayName.trim().charAt(0).toUpperCase() || '?'
 
   // ================================
-  // ⭐ Avatar: buildImageUrl()
+  // ⭐ Avatar
   // ================================
-  let rawAvatar = msg.sender_avatar_url || msg.avatar_url || null
-  if (typeof rawAvatar === 'string') {
-    rawAvatar = rawAvatar.trim()
-    if (rawAvatar === '') rawAvatar = null
-  }
-  const avatarUrl = rawAvatar ? buildImageUrl(rawAvatar) : null
+  const avatarUrl = useMemo(() => {
+    let raw = safeMsg.sender_avatar_url || safeMsg.avatar_url || null
+    if (typeof raw === 'string') {
+      raw = raw.trim()
+      if (!raw) raw = null
+    }
+    return raw ? buildImageUrl(raw) : null
+  }, [safeMsg])
 
-  const timeLabel = msg.created_at ? formatTime(msg.created_at) : ''
+  const timeLabel = safeMsg.created_at ? formatTime?.(safeMsg.created_at) : ''
 
   // ================================
   // ⭐ Image detect + build URL
@@ -87,7 +126,7 @@ function ChatMessageItem({
     const urls = []
 
     const candidates =
-      msg.image_urls || msg.images || msg.attachments || msg.files || msg.media || null
+      safeMsg.image_urls || safeMsg.images || safeMsg.attachments || safeMsg.files || safeMsg.media || null
 
     if (Array.isArray(candidates)) {
       for (const x of candidates) {
@@ -100,7 +139,7 @@ function ChatMessageItem({
       }
     }
 
-    const c = typeof msg.content === 'string' ? msg.content.trim() : ''
+    const c = typeof safeMsg.content === 'string' ? safeMsg.content.trim() : ''
     const isImagePath =
       !!c &&
       /(\.png|\.jpg|\.jpeg|\.webp|\.gif)$/i.test(c) &&
@@ -109,7 +148,7 @@ function ChatMessageItem({
     if (isImagePath) urls.push(c)
 
     return Array.from(new Set(urls)).map((u) => buildImageUrl(u))
-  }, [msg])
+  }, [safeMsg])
 
   const hasImages = messageType === 'image' || imageUrls.length > 0
 
@@ -155,13 +194,13 @@ function ChatMessageItem({
   const handleContextMenu = useCallback(
     (e) => {
       if (isSystem) return
-      if (msg?.id == null) return
+      if (safeMsg?.id == null) return
 
       e.preventDefault()
       e.stopPropagation()
       openMenuAt(e.clientX, e.clientY)
     },
-    [openMenuAt, isSystem, msg]
+    [openMenuAt, isSystem, safeMsg]
   )
 
   useEffect(() => {
@@ -192,7 +231,7 @@ function ChatMessageItem({
     (emojiOrKey) => {
       closeMenu()
       if (typeof onReactMessage !== 'function') return
-      if (!msg?.id) return
+      if (!safeMsg?.id) return
 
       const emoji =
         REACTION_KEY_TO_EMOJI[emojiOrKey] ||
@@ -203,42 +242,42 @@ function ChatMessageItem({
         (REACTION_KEY_TO_EMOJI[emojiOrKey] ? emojiOrKey : null)
 
       onReactMessage({
-        messageId: msg.id,
+        messageId: safeMsg.id,
         emoji: emoji || emojiOrKey,
         reaction: reactionKey || emojiOrKey,
-        roomId: msg.room_id,
-        senderId: msg.sender_id,
-        createdAt: msg.created_at,
-        rawMsg: msg,
+        roomId: safeMsg.room_id,
+        senderId: safeMsg.sender_id,
+        createdAt: safeMsg.created_at,
+        rawMsg: safeMsg,
       })
     },
-    [closeMenu, onReactMessage, msg]
+    [closeMenu, onReactMessage, safeMsg]
   )
 
   const emitReply = useCallback(() => {
     closeMenu()
     if (typeof onReplyMessage !== 'function') return
-    if (msg?.id == null) return
+    if (safeMsg?.id == null) return
 
     onReplyMessage({
-      messageId: msg.id,
-      roomId: msg.room_id,
-      senderId: msg.sender_id,
-      senderName: msg.sender_name || 'Unknown',
-      content: msg.content || '',
-      createdAt: msg.created_at,
+      messageId: safeMsg.id,
+      roomId: safeMsg.room_id,
+      senderId: safeMsg.sender_id,
+      senderName: safeMsg.sender_name || 'Unknown',
+      content: safeMsg.content || '',
+      createdAt: safeMsg.created_at,
       messageType,
-      rawMsg: msg,
+      rawMsg: safeMsg,
     })
-  }, [closeMenu, onReplyMessage, msg, messageType])
+  }, [closeMenu, onReplyMessage, safeMsg, messageType])
 
   // clamp menu inside viewport
   const menuStyle = useMemo(() => {
     const w = 230
     const h = 52
     const pad = 10
-    const vw = window.innerWidth || 1200
-    const vh = window.innerHeight || 800
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1200
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 800
 
     const x = Math.min(menuPos.x, vw - w - pad)
     const y = Math.min(menuPos.y, vh - h - pad)
@@ -248,7 +287,7 @@ function ChatMessageItem({
   // ================================
   // ✅ Reply preview rendering + jump highlight
   // ================================
-  const replyMeta = msg.reply || null
+  const replyMeta = safeMsg.reply || null
 
   const replyPreviewText = useMemo(() => {
     if (!replyMeta) return ''
@@ -276,7 +315,7 @@ function ChatMessageItem({
   // ✅ Reaction summary
   // ================================
   const reactionItems = useMemo(() => {
-    const arr = Array.isArray(msg.reactions) ? msg.reactions : []
+    const arr = Array.isArray(safeMsg.reactions) ? safeMsg.reactions : []
     return arr
       .filter((x) => x && x.count > 0 && x.reaction)
       .map((x) => ({
@@ -286,14 +325,12 @@ function ChatMessageItem({
         me: !!x.reacted_by_me,
       }))
       .sort((a, b) => b.count - a.count)
-  }, [msg])
+  }, [safeMsg])
 
   const hasReactions = reactionItems.length > 0
 
   // ================================
   // ✅ Seen rendering (Messenger-like)
-  // - Chỉ show dưới tin nhắn mới nhất do mình gửi
-  // - seenUsers: loại bỏ bản thân + limit avatar cho gọn
   // ================================
   const seenList = useMemo(() => {
     const arr = Array.isArray(seenUsers) ? seenUsers : []
@@ -318,134 +355,148 @@ function ChatMessageItem({
 
   const showSeen = isMe && !isSystem && !isTemp && isLatestMyMessage && seenNumber > 0
 
+  // ✅ now safe to return
+  if (!msg) return null
+
   return (
     <>
       <div
-        id={msg?.id != null ? `msg-${msg.id}` : undefined}
+        id={safeMsg?.id != null ? `msg-${safeMsg.id}` : undefined}
         className={classes}
         role="presentation"
       >
-        {/* AVATAR */}
-        {!isSystem && (
-          <div className="message-avatar">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} className="message-avatar-img" />
-            ) : (
-              <span className="message-avatar-fallback">{initial}</span>
-            )}
+        {/* ✅ DAY DIVIDER SYSTEM */}
+        {isDayDivider ? (
+          <div className="cc-day-divider">
+            <span className="cc-day-divider-line" />
+            <span className="cc-day-divider-pill">
+                {safeMsg.content.slice(3, -3)}
+            </span>
+            <span className="cc-day-divider-line" />
           </div>
-        )}
-
-        {/* BODY */}
-        <div className="message-body">
-          <div className="message-meta">
-            <div className="message-meta-left">
-              {!isSystem && <span className="message-author">{displayName}</span>}
-              {isSystem && <span className="message-author system-label">System</span>}
-            </div>
-
-            <div className="message-meta-right">
-              {timeLabel && <span className="message-time">{timeLabel}</span>}
-            </div>
-          </div>
-
-          {/* ✅ REPLY PREVIEW */}
-          {hasReply && (
-            <button
-              type="button"
-              className="cc-reply-preview"
-              onClick={jumpToRepliedMessage}
-              title="Go to replied message"
-            >
-              <span className="cc-reply-bar" />
-              <span className="cc-reply-content">
-                <span className="cc-reply-top">
-                  <span className="cc-reply-name">
-                    {replyMeta?.sender_name || 'Unknown'}
-                  </span>
-                </span>
-                <span className="cc-reply-snippet">{replyPreviewText}</span>
-              </span>
-            </button>
-          )}
-
-          {/* CONTENT */}
-          {hasImages ? (
-            <div className="message-bubble message-bubble-image" onContextMenu={handleContextMenu}>
-              <div className="message-images">
-                {imageUrls.map((src, idx) => (
-                  <button
-                    key={`${src}-${idx}`}
-                    className="message-image-btn"
-                    type="button"
-                    onClick={() => openPreview(src)}
-                    title="Click to preview"
-                  >
-                    <img
-                      src={src}
-                      alt={`chat-image-${idx}`}
-                      className="message-image-thumb"
-                      loading="lazy"
-                    />
-                  </button>
-                ))}
-              </div>
-
-              {typeof msg.content === 'string' &&
-                msg.content.trim() &&
-                !/(\.png|\.jpg|\.jpeg|\.webp|\.gif)$/i.test(msg.content.trim()) && (
-                  <div className="message-image-caption">{msg.content}</div>
+        ) : (
+          <>
+            {/* AVATAR */}
+            {!isSystem && (
+              <div className="message-avatar">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={displayName} className="message-avatar-img" />
+                ) : (
+                  <span className="message-avatar-fallback">{initial}</span>
                 )}
-            </div>
-          ) : (
-            <div className="message-bubble" onContextMenu={handleContextMenu}>
-              {msg.content}
-            </div>
-          )}
+              </div>
+            )}
 
-          {/* ✅ REACTIONS BAR */}
-          {hasReactions && !isSystem && (
-            <div className={`cc-reactions-row ${isMe ? 'cc-reactions-me' : ''}`}>
-              {reactionItems.map((r) => (
-                <button
-                  key={r.key}
-                  type="button"
-                  className={`cc-reaction-pill ${r.me ? 'is-me' : ''}`}
-                  onClick={() => emitReact(r.key)}
-                  title={r.me ? 'You reacted (click to remove)' : 'React (click to add)'}
-                >
-                  <span className="cc-reaction-emoji">{r.emoji}</span>
-                  <span className="cc-reaction-count">{r.count}</span>
-                </button>
-              ))}
-            </div>
-          )}
+            {/* BODY */}
+            <div className="message-body">
+              <div className="message-meta">
+                <div className="message-meta-left">
+                  {!isSystem && <span className="message-author">{displayName}</span>}
+                  {isSystem && <span className="message-author system-label">System</span>}
+                </div>
 
-          {/* ✅ SEEN ROW (Messenger-like) */}
-          {showSeen && (
-            <div className="cc-seen-row" title={`${seenNumber} seen`}>
-              <div className="cc-seen-avatars">
-                {seenList.map((u) => (
-                  <span key={u.userId} className="cc-seen-avatar" title={u.name}>
-                    {u.avatar ? (
-                      <img src={u.avatar} alt={u.name} />
-                    ) : (
-                      <span className="cc-seen-fallback">{u.initial}</span>
-                    )}
-                  </span>
-                ))}
+                <div className="message-meta-right">
+                  {timeLabel && <span className="message-time">{timeLabel}</span>}
+                </div>
               </div>
 
-              {seenNumber > seenList.length && (
-                <span className="cc-seen-more">+{seenNumber - seenList.length}</span>
+              {/* ✅ REPLY PREVIEW */}
+              {hasReply && (
+                <button
+                  type="button"
+                  className="cc-reply-preview"
+                  onClick={jumpToRepliedMessage}
+                  title="Go to replied message"
+                >
+                  <span className="cc-reply-bar" />
+                  <span className="cc-reply-content">
+                    <span className="cc-reply-top">
+                      <span className="cc-reply-name">{replyMeta?.sender_name || 'Unknown'}</span>
+                    </span>
+                    <span className="cc-reply-snippet">{replyPreviewText}</span>
+                  </span>
+                </button>
               )}
-            </div>
-          )}
 
-          <div className="message-footer">
-            {isTemp && <span className="message-status">Sending to server...</span>}
-          </div>
-        </div>
+              {/* CONTENT */}
+              {hasImages ? (
+                <div className="message-bubble message-bubble-image" onContextMenu={handleContextMenu}>
+                  <div className="message-images">
+                    {imageUrls.map((src, idx) => (
+                      <button
+                        key={`${src}-${idx}`}
+                        className="message-image-btn"
+                        type="button"
+                        onClick={() => openPreview(src)}
+                        title="Click to preview"
+                      >
+                        <img
+                          src={src}
+                          alt={`chat-image-${idx}`}
+                          className="message-image-thumb"
+                          loading="lazy"
+                        />
+                      </button>
+                    ))}
+                  </div>
+
+                  {typeof safeMsg.content === 'string' &&
+                    safeMsg.content.trim() &&
+                    !/(\.png|\.jpg|\.jpeg|\.webp|\.gif)$/i.test(safeMsg.content.trim()) && (
+                      <div className="message-image-caption">{safeMsg.content}</div>
+                    )}
+                </div>
+              ) : (
+                <div className="message-bubble" onContextMenu={handleContextMenu}>
+                  {safeMsg.content}
+                </div>
+              )}
+
+              {/* ✅ REACTIONS BAR */}
+              {hasReactions && !isSystem && (
+                <div className={`cc-reactions-row ${isMe ? 'cc-reactions-me' : ''}`}>
+                  {reactionItems.map((r) => (
+                    <button
+                      key={r.key}
+                      type="button"
+                      className={`cc-reaction-pill ${r.me ? 'is-me' : ''}`}
+                      onClick={() => emitReact(r.key)}
+                      title={r.me ? 'You reacted (click to remove)' : 'React (click to add)'}
+                    >
+                      <span className="cc-reaction-emoji">{r.emoji}</span>
+                      <span className="cc-reaction-count">{r.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* ✅ SEEN ROW */}
+              {showSeen && (
+                <div className="cc-seen-row" title={`${seenNumber} seen`}>
+                  <div className="cc-seen-avatars">
+                    {seenList.map((u) => (
+                      <span key={u.userId} className="cc-seen-avatar" title={u.name}>
+                        {u.avatar ? (
+                          <img src={u.avatar} alt={u.name} />
+                        ) : (
+                          <span className="cc-seen-fallback">{u.initial}</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+
+                  {seenNumber > seenList.length && (
+                    <span className="cc-seen-more">+{seenNumber - seenList.length}</span>
+                  )}
+                </div>
+              )}
+
+              <div className="message-footer">
+                {isTemp && <span className="message-status">Sending to server...</span>}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ✅ MINI CONTEXT MENU */}

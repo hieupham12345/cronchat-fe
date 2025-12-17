@@ -1,3 +1,15 @@
+/* ===============================
+   UserSidebar / Friend list styles
+   Responsive + cleaned
+   =============================== */
+
+/* Global safer box sizing (giảm bug tràn ngang) */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* ===== SEARCH BOX ===== */
 .user-sidebar-search {
   padding: 6px;
@@ -24,7 +36,7 @@
   border-color: #3b82f6;
 }
 
-
+/* Hover row */
 .friend-row:hover {
   background: rgba(255, 255, 255, 0.05);
 }
@@ -59,13 +71,17 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
 }
 
+/* Fix overflow: có ellipsis để khỏi vỡ layout */
 .inline-name,
 .friend-name {
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inline-username,
@@ -73,6 +89,8 @@
   font-size: 12px;
   opacity: 0.7;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===== ACTIONS (ICON MESSAGE) ===== */
@@ -81,6 +99,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .message-btn {
@@ -96,6 +115,7 @@
   align-items: center;
   justify-content: center;
   transition: background 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .message-btn:hover {
@@ -133,110 +153,108 @@
 }
 
 
-.user-edit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.user-edit-close {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: #9ca3af;
-}
-
-.user-edit-body .form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-bottom: 6px;
-}
-
-.user-edit-body label {
-  font-size: 11px;
-  opacity: 0.7;
-}
-
-.user-edit-body input[type='text'],
-.user-edit-body input[type='file'] {
-  font-size: 13px;
-}
-
-.user-edit-error {
-  color: #f87171;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.user-edit-info {
-  color: #9ca3af;
-  font-size: 11px;
-  margin-top: 2px;
-}
-
-.user-edit-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.user-edit-actions button {
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #4b5563;
-  background: #111827;
-  cursor: pointer;
-}
-
-.user-edit-actions button:last-child {
-  border-color: #3b82f6;
-}
-
-.avatar-preview-row {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-
-.avatar-preview-box {
-  width: 72px;
-  height: 72px;
-  border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid #4b5563;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar-preview-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatar-preview-placeholder {
-  font-size: 11px;
-  color: #9ca3af;
-}
-
+/* Row user */
 .user-account-row {
   display: flex;
   align-items: center;
-  padding: 8px 6px;
   gap: 10px;
-  border-radius: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
   cursor: pointer;
+  min-width: 0;
+
+  border: 1px solid #1e293b;
+  background: rgba(2, 6, 23, 0.85);
 }
 
-/* ==== MINI EDIT AVATAR PANEL ==== */
-.user-edit-mini {
+.user-account-row:hover {
+  border-color: #334155;
+}
+
+.user-account-row:active {
+  transform: translateY(1px);
+}
+
+/* Nếu trong row có avatar / text */
+.user-account-row .left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.user-account-row .user-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-account-row .user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e7eb;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-account-row .user-sub {
+  font-size: 12px;
+  color: #9ca3af;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Section box ===== */
+.section {
+  padding: 10px;
+  border-radius: 12px;
+  background: #020617;
+  border: 1px solid #1e293b;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  max-height: 300px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   margin-top: 10px;
+}
+
+/* ===== Responsive breakpoints ===== */
+/* Tablet: co padding nhẹ */
+@media (max-width: 900px) {
+  .user-account-row {
+    padding: 8px 8px;
+  }
+  .section {
+    max-height: 260px;
+  }
+}
+
+/* Default: hiện */
+.user-left-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Khi màn hình hẹp ngang (≈ <= 60%) thì ẩn */
+@media (max-width: 1200px) {
+  .user-left-box {
+    display: none;
+  }
+}
+
+/* ===============================
+   MINI EDIT AVATAR PANEL
+   =============================== */
+.user-edit-mini {
+  margin-top: 10px; 
   padding: 10px 12px;
   border-radius: 10px;
   background: #020617;
@@ -246,7 +264,9 @@
   flex-direction: column;
   gap: 10px;
   animation: user-edit-fade-in 0.16s ease-out;
-  position: relative;}
+  position: relative;
+  z-index: 100;
+}
 
 /* viền mờ cho card */
 .user-edit-mini::before {
@@ -267,12 +287,15 @@
   font-weight: 500;
   color: #e5e7eb;
   margin-bottom: 4px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .user-edit-header span {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Nút close */
@@ -290,6 +313,8 @@
   cursor: pointer;
   padding: 0;
   transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .user-edit-close:hover:not(:disabled) {
@@ -308,6 +333,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
 }
 
 /* Avatar preview */
@@ -327,6 +353,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .avatar-preview-box img {
@@ -338,6 +365,8 @@
 .avatar-preview-placeholder {
   font-size: 11px;
   color: #6b7280;
+  text-align: center;
+  padding: 0 8px;
 }
 
 /* FORM ROW */
@@ -346,13 +375,21 @@
   flex-direction: column;
   gap: 4px;
   font-size: 12px;
-  margin-right: 40px;
+  margin-right: 40px; /* desktop ok, mobile sẽ override */
+  min-width: 0;
 }
 
 .form-row label {
   color: #9ca3af;
 }
 
+.user-edit-body input[type='text'],
+.user-edit-body input[type='file'] {
+  font-size: 13px;
+  max-width: 100%;
+}
+
+/* File input */
 .form-row input[type='file'] {
   font-size: 11px;
   color: #e5e7eb;
@@ -361,6 +398,7 @@
   border: 1px dashed #374151;
   padding: 6px;
   cursor: pointer;
+  width: 100%;
 }
 
 .form-row input[type='file']::file-selector-button {
@@ -402,6 +440,7 @@
   justify-content: flex-end;
   gap: 8px;
   margin-top: 6px;
+  flex-wrap: wrap;
 }
 
 .user-edit-actions button {
@@ -414,6 +453,7 @@
   font-size: 12px;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .user-edit-actions button:hover:not(:disabled) {
@@ -447,3 +487,69 @@
     transform: translateY(0);
   }
 }
+
+/* ===============================
+   RESPONSIVE OVERRIDES
+   =============================== */
+
+/* Tablet & down */
+@media (max-width: 768px) {
+  .user-sidebar-search {
+    margin-right: 0;
+    padding: 8px 10px;
+  }
+
+  .user-avatar,
+  .friend-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .inline-name,
+  .friend-name {
+    font-size: 13px;
+  }
+
+  .inline-username,
+  .friend-username {
+    font-size: 11px;
+  }
+
+  .message-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+
+  .form-row {
+    margin-right: 0; /* ✅ bỏ margin-right cứng để khỏi tràn */
+  }
+
+  .user-edit-actions button {
+    min-width: 92px; /* dễ bấm hơn trên touch */
+  }
+}
+
+/* Small phones */
+@media (max-width: 420px) {
+  .user-sidebar-search input {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .avatar-preview-box {
+    width: 72px;
+    height: 72px;
+  }
+
+  .user-edit-actions {
+    justify-content: stretch;
+  }
+
+  .user-edit-actions button {
+    flex: 1;
+    min-width: 0;
+  }
+}
+

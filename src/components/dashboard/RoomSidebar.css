@@ -1,13 +1,56 @@
-.section-rooms {
-  position: relative;
+/* =========================
+   SIDEBAR GENERIC (BASE)
+========================= */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #020617;
+  min-width: 0; /* ✅ cho phép co trong flex layout */
 }
 
-/* ===== HEADER + BUTTON CREATE GROUP ===== */
+.sidebar-left {
+  width: 300px;        /* ✅ desktop cố định */
+  flex: 0 0 300px;     /* ✅ không bị kéo giãn / co linh tinh */
+  min-width: 0;
+}
 
+.sidebar-right {
+  width: 300px;
+  flex: 0 0 300px;
+  min-width: 0;
+}
+
+/* =========================
+   ROOMS SECTION
+========================= */
+
+.section-rooms {
+  padding: 10px;
+  border-radius: 12px;
+  background: #020617;
+  border: 1px solid #1e293b;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  /* ✅ đừng max-height kiểu cứng trên desktop, cho nó tự ăn theo viewport */
+  height: min(70vh, 520px);
+  min-height: 220px;
+
+  position: relative;
+  min-width: 0;
+  overflow: hidden; /* ✅ để list scroll bên trong */
+}
+
+/* Header cố định, list scroll */
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-direction: row;
   padding: 8px 12px 6px;
   border-bottom: 1px solid #111827;
 }
@@ -18,6 +61,62 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #9ca3af;
+
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* =========================
+   CHANNEL LIST
+========================= */
+
+.channel-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  flex: 1 1 auto; /* ✅ ăn phần còn lại của section */
+  min-height: 0;  /* ✅ bắt buộc để overflow scroll hoạt động trong flex */
+  overflow-y: auto;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =========================
+   BREAKPOINTS
+========================= */
+
+/* Tablet: sidebar co lại chút */
+@media (max-width: 1024px) {
+  .sidebar-left,
+  .sidebar-right {
+    width: 260px;
+    flex: 0 0 260px;
+  }
+
+  .section-rooms {
+    height: min(65vh, 480px);
+  }
+}
+
+/* Khi màn hình hẹp ngang (≈ <= 60%) thì ẩn */
+@media (max-width: 900px) {
+  .section-rooms, .sidebar-right, .sidebar {
+    display: none;
+  }
+}
+
+/* Mobile: ẩn sidebar (mày dùng drawer/bottom sheet thay thế) */
+@media (max-width: 640px) {
+  .sidebar-left,
+  .sidebar-right {
+    display: none;
+  }
 }
 
 .create-room-btn {

@@ -5,7 +5,7 @@ import DashboardHeader from "../components/dashboard/DashboardHeader";
 export default function DashboardLayout({ user, onLogout }) {
   
   return (
-    <div className="dashboard">
+    <div >
 
       {/* HEADER DÙNG CHUNG */}
       <DashboardHeader
@@ -15,7 +15,7 @@ export default function DashboardLayout({ user, onLogout }) {
       />
 
       {/* Body thay đổi tùy page */}
-      <div className="dashboard-body">
+      <div>
         <Outlet />
       </div>
     </div>

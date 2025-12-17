@@ -248,7 +248,7 @@ function RoomSidebar({
         </button>
       </div>
 
-      <ul className="channel-list">
+      <ul className="channel-list cc-scroll">
         {rooms.length === 0 && (
           <li className="empty-text">No rooms available.</li>
         )}

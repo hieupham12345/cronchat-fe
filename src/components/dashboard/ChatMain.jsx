@@ -1267,13 +1267,19 @@ function ChatMain({
   function formatDayLabel(d) {
     const dt = typeof d === 'string' ? new Date(d) : d;
     if (Number.isNaN(dt.getTime())) return '';
+
+    const HOURS_OFFSET = 7;
+    const fixed = new Date(dt);
+    fixed.setHours(fixed.getHours() - HOURS_OFFSET);
+
     return new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
       month: 'short',
       day: '2-digit',
       year: 'numeric',
-    }).format(dt);
+    }).format(fixed);
   }
+
 
   const latestMyMessageId = useMemo(() => {
     const arr = Array.isArray(messages) ? messages : []
@@ -1322,10 +1328,6 @@ function ChatMain({
 
         <div
           className="chat-window cc-scroll"
-          style={{
-            maxHeight: 'calc(100vh - 220px)',
-            overflowY: 'auto',
-          }}
         >
           <div className="chat-empty">
             <p>Loading room data...</p>
@@ -1349,10 +1351,7 @@ function ChatMain({
 
         <div
           className="chat-window cc-scroll"
-          style={{
-            maxHeight: 'calc(100vh - 220px)',
-            overflowY: 'auto',
-          }}
+
         >
           <div className="chat-empty">
             <p>Please double-check the API/backend, bro.</p>
@@ -1388,10 +1387,7 @@ function ChatMain({
           className="chat-window cc-scroll"
           ref={chatWindowRef}
           onScroll={handleScrollMessages}
-          style={{
-            maxHeight: 'calc(100vh - 220px)',
-            overflowY: 'auto',
-          }}
+
           onMouseDown={(e) => {
             const noFocus = e.target.closest(
               '.message-bubble, .message-images, .message-image-btn, .img-preview-overlay, .img-preview-modal'
@@ -1440,14 +1436,14 @@ function ChatMain({
 
                   return (
                     <Fragment key={msg.id}>
-                      {isFirstOfDay && (
+                      {/* {isFirstOfDay && (
                         <div className="cc-day-divider">
                           <span className="cc-day-divider-arrow"></span>
                           <span className="cc-day-divider-text">
                             {formatDayLabel(msg?.created_at)}
                           </span>
                         </div>
-                      )}
+                      )} */}
 
                     <ChatMessageItem
                       msg={msg}
@@ -1488,7 +1484,7 @@ function ChatMain({
       </div>
 
       {/* ========= INPUT BAR (text + images) ========= */}
-      <div className="chat-input-bar">
+      <div className="chat-input-bar cc-scroll">
         {/* hidden file input */}
         <input
           ref={fileInputRef}
@@ -1578,10 +1574,10 @@ function ChatMain({
 
             <textarea
               ref={textareaRef}
-              className="chat-input"
+              className="chat-input cc-scroll"
               placeholder={
                 hasRoom
-                  ? 'Type a message... (you can paste images)'
+                  ? 'Type a message...'
                   : 'Please select a room before sending a message...'
               }
               // ✅ FIX: chỉ disable khi không được chat (no room/load/error)

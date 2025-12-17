@@ -592,10 +592,10 @@ function DashboardPage() {
   // ======================
   return (
     <div className="dashboard">
-      <div className="dashboard-body">
+      <div className="dashboard-box">
         
         {/* LEFT SIDEBAR */}
-        <div className="sidebar sidebar-left">
+        <div>
           <UserSidebar
             user={user}
             displayName= {displayName}

@@ -1,9 +1,17 @@
+/* ================================
+   Login Form - Responsive + Clean
+   (full file - copy/paste)
+================================== */
+
 /* ===== Root form ===== */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
   width: 100%;
+  max-width: 520px; /* ✅ tránh quá rộng trên desktop */
+  margin: 0 auto;   /* ✅ center */
+  box-sizing: border-box;
 }
 
 /* ===== Form Groups ===== */
@@ -11,12 +19,15 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-right: 18px;
+  margin-right: 18px; /* desktop spacing */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ===== Inputs ===== */
 .form-input {
-  width: 98%;
+  width: 100%;                /* ✅ fixed: khỏi bị tràn vì 98% + margin-right */
+  max-width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid #1f2937;
@@ -25,6 +36,7 @@
   outline: none;
   font-size: 14px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-sizing: border-box;     /* ✅ đảm bảo padding/border không làm overflow */
 }
 
 .form-input::placeholder {
@@ -44,6 +56,7 @@
   font-size: 13px;
   text-align: center;
   margin-top: 4px;
+  word-break: break-word; /* ✅ phòng lỗi dài trên mobile */
 }
 
 /* ===== Buttons & Actions ===== */
@@ -53,6 +66,8 @@
   align-items: stretch;
   gap: 10px;
   margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-primary {
@@ -67,6 +82,7 @@
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease,
     background 0.15s ease;
+  box-sizing: border-box;
 }
 
 .btn-primary:hover:not(.loading):not(:disabled) {
@@ -101,10 +117,71 @@
   font-size: 13px;
   cursor: pointer;
   transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  box-sizing: border-box;
 }
 
 .btn-secondary:hover {
   background: #020617;
   border-color: #6b7280;
   color: #f9fafb;
+}
+
+/* ================================
+   Responsive tweaks
+================================== */
+
+/* Tablet & down */
+@media (max-width: 768px) {
+  .login-form {
+    gap: 14px;
+    max-width: 100%;
+    padding: 0 12px; /* ✅ thở đều hai bên */
+  }
+
+  .form-group {
+    margin-right: 0; /* ✅ bỏ margin-right để khỏi lệch/overflow */
+  }
+
+  .form-input {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 420px) {
+  .login-form {
+    gap: 12px;
+    padding: 0 10px;
+  }
+
+  .form-input {
+    font-size: 13px;
+    padding: 9px 11px;
+    border-radius: 9px;
+  }
+
+  .btn-primary {
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+
+  .btn-secondary {
+    font-size: 12.5px;
+    padding: 8.5px 12px;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .form-input,
+  .btn-primary,
+  .btn-secondary {
+    transition: none !important;
+  }
+
+  .btn-primary:hover:not(.loading):not(:disabled),
+  .btn-primary:active:not(.loading):not(:disabled) {
+    transform: none !important;
+  }
 }
