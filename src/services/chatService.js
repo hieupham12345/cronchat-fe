@@ -197,6 +197,36 @@ export async function listMessageSeenUsers(messageId, limit = 50) {
   });
 }
 
+// GET /rooms/unread-counts
+// return: { user_id, counts: { [roomId]: unreadCount } }
+export async function getUnreadCountsByRooms() {
+  const token = getAccessToken();
+  if (!token) throw new Error("Missing access token");
+
+  return apiFetch(`/rooms/unread-counts`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+// GET /rooms/unread/{roomID}
+// return: { room_id, user_id, unread_count }
+export async function getUnreadCountForRoom(roomId) {
+  const token = getAccessToken();
+  if (!token) throw new Error("Missing access token");
+
+  const rid = Number(roomId);
+  if (!rid || rid <= 0) throw new Error("Invalid roomId");
+
+  return apiFetch(`/rooms/unread/${rid}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
 
 
 

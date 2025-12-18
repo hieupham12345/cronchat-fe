@@ -10,6 +10,7 @@ import { EMOJI_MAP } from '../../utils/emojiData.js';
 import './ChatMain.css';
 import { toggleReaction, markRoomSeenUpTo } from '../../services/chatService.js';
 import EmojiPicker from './EmojiPicker.jsx';
+import { getDirectPartnerName } from '../../services/roomService.js';
 
 
 const EMOJI_KEYS = Object.keys(EMOJI_MAP).sort((a, b) => b.length - a.length)
@@ -139,6 +140,127 @@ function ChatMain({
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const MAX_PENDING_IMAGES = 3;
   const [replyDraft, setReplyDraft] = useState(null)
+
+
+    // ==========================
+  // ✅ Emoji suggestion (NOT auto replace)
+  // ==========================
+  const [emojiSuggest, setEmojiSuggest] = useState({
+    open: false,
+    items: [],         // [{ key, emoji }]
+    active: 0,
+    start: 0,          // range replace start
+    end: 0,            // range replace end (caret)
+    token: '',
+  })
+
+  const closeEmojiSuggest = useCallback(() => {
+    setEmojiSuggest(s => ({ ...s, open: false, items: [], token: '' }))
+  }, [])
+
+  function extractTokenBeforeCaret(text, caret) {
+    // lấy đoạn "token" sát trước caret: chữ/số/_/:/-/+
+    // vd "hello 100|" => token = "100"
+    const left = text.slice(0, caret)
+
+    // match token cuối cùng (không lấy space/punct)
+    const m = left.match(/([a-zA-Z0-9_:+-]+)$/)
+    if (!m) return { token: '', start: caret, end: caret }
+
+    const token = m[1] || ''
+    const start = caret - token.length
+    const end = caret
+    return { token, start, end }
+  }
+
+  function buildEmojiCandidates(token) {
+    const t = String(token || '').trim()
+    if (!t) return []
+
+    // ✅ ưu tiên exact match, vẫn cho prefix để user gõ dần (tuỳ thích)
+    const exact = EMOJI_MAP[t] ? [{ key: t, emoji: EMOJI_MAP[t] }] : []
+
+    // prefix candidates (giới hạn để khỏi spam)
+    // ví dụ: gõ "smi" ra ":smile:"... nếu map của mày có kiểu đó
+    const prefix =
+      t.length >= 2
+        ? EMOJI_KEYS
+            .filter(k => k !== t && k.startsWith(t))
+            .slice(0, 6)
+            .map(k => ({ key: k, emoji: EMOJI_MAP[k] }))
+        : []
+
+    // gộp lại: exact lên đầu
+    return [...exact, ...prefix].slice(0, 7)
+  }
+
+  const applyEmojiSuggestion = useCallback((pick) => {
+    const el = textareaRef.current
+    if (!el) return
+    if (!pick?.emoji) return
+
+    setInputValue(prev => {
+      const { start, end } = emojiSuggest
+      const safeStart = Math.max(0, Math.min(start, prev.length))
+      const safeEnd = Math.max(0, Math.min(end, prev.length))
+
+      const next =
+        prev.slice(0, safeStart) +
+        pick.emoji +
+        prev.slice(safeEnd)
+
+      return next
+    })
+
+    requestAnimationFrame(() => {
+      const el2 = textareaRef.current
+      if (!el2) return
+      const pos = Math.max(0, (emojiSuggest.start || 0)) + String(pick.emoji).length
+      el2.focus()
+      el2.setSelectionRange(pos, pos)
+    })
+
+    closeEmojiSuggest()
+  }, [emojiSuggest, closeEmojiSuggest])
+
+    const handleInputChange = useCallback((e) => {
+    const el = e.target
+    const next = el.value
+    const caret = el.selectionStart ?? next.length
+
+    setInputValue(next)
+
+    // skip suggestion trong url/code-ish (xài lại hàm mày có)
+    if (shouldSkipAutoEmoji(next, caret)) {
+      closeEmojiSuggest()
+      return
+    }
+
+    const { token, start, end } = extractTokenBeforeCaret(next, caret)
+
+    // nếu user gõ tiếp làm token rỗng / đổi -> tự biến mất
+    if (!token) {
+      closeEmojiSuggest()
+      return
+    }
+
+    const items = buildEmojiCandidates(token)
+
+    if (!items.length) {
+      closeEmojiSuggest()
+      return
+    }
+
+    setEmojiSuggest(s => ({
+      open: true,
+      items,
+      active: 0,
+      start,
+      end,
+      token,
+    }))
+  }, [closeEmojiSuggest])
+
 
   // ==========================
   // ✅ SEEN STATE (room-level)
@@ -594,32 +716,56 @@ function ChatMain({
   }, [hasRoom, selectedRoom?.id, canType, sendingLocked, showAddMembers, focusInput]);
 
 
-  const applyRealtimeRoomName = useCallback((roomId, roomObj, currentRoomId) => {
-    if (!roomId || !roomObj) return
+  const applyRealtimeRoomName = useCallback(
+    async (roomId, roomObj, currentRoomId) => {
+      if (!roomId || !roomObj) return
 
-    const r = roomObj
-    const type = r?.type
-    const name = (r?.name || r?.displayName || '').trim()
-    if (!name) return
+      const r = roomObj
+      const type = String(r?.type || '').toLowerCase()
 
-    // ✅ direct: update displayName (đừng đụng name raw để khỏi đè "direct_12_34")
-    // ✅ group: update name (và displayName nếu mày dùng)
-    const patch = {
-      type: type,
-      updated_at: r?.updated_at,
-    }
+      const patch = {
+        type: r?.type,
+        updated_at: r?.updated_at,
+      }
 
-    if (String(type).toLowerCase() === 'direct') {
-      patch.displayName = name
-    } else {
-      patch.name = name
-      patch.displayName = name
-    }
+      // =========================
+      // ✅ DIRECT ROOM
+      // =========================
+      if (type === 'direct') {
+        try {
+          const res = await getDirectPartnerName(roomId)
+          const partnerName =
+            res?.full_name ||
+            res?.name ||
+            res?.displayName ||
+            'Direct chat'
 
-    if (typeof window.__updateRoomSidebar === 'function') {
-      window.__updateRoomSidebar(roomId, patch, currentRoomId)
-    }
-  }, [])
+          patch.displayName = partnerName
+          // ❌ KHÔNG set patch.name để khỏi đè raw name kiểu direct_12_34
+        } catch (err) {
+          console.warn('[applyRealtimeRoomName] direct-name failed', err)
+          return
+        }
+      }
+
+      // =========================
+      // ✅ GROUP ROOM
+      // =========================
+      else {
+        const name = (r?.name || r?.displayName || '').trim()
+        if (!name) return
+
+        patch.name = name
+        patch.displayName = name
+      }
+
+      if (typeof window.__updateRoomSidebar === 'function') {
+        window.__updateRoomSidebar(roomId, patch, currentRoomId)
+      }
+    },
+    []
+  )
+
 
 
   // ====== WEBSOCKET GLOBAL ======
@@ -650,78 +796,71 @@ function ChatMain({
         const roomId = env?.room_id || env?.RoomID
         const data = env?.data || env?.Data
 
-        console.log('[WS IN]', { type, roomId, data })
-
         if (!type) return
 
         const currentRoomId = selectedRoomRef.current?.id
 
         switch (type) {
           case 'message_created': {
-            const msg = data
+            // ✅ ONLY kiểu 2
+            const msg = data?.message
+            const room = data?.room
             if (!msg || msg.id == null) return
 
             const cur = selectedRoomRef.current?.id
             const isCurrent = cur != null && Number(roomId) === Number(cur)
 
-            // ✅ ALWAYS update sidebar (last message + updated_at + unread)
+            // ✅ realtime update tên room từ room_lite
+            if (room) {
+              applyRealtimeRoomName(roomId, room, cur)
+            }
+
+            // ✅ ALWAYS update sidebar meta + last message
             if (typeof window.__updateRoomSidebar === 'function') {
-              window.__updateRoomSidebar(roomId, {
-                last_message: msg,
-                updated_at: msg?.created_at || new Date().toISOString(),
-                bump_unread: !isCurrent, // ✅ chỉ tăng unread nếu không đang mở room
-              }, cur)
+              window.__updateRoomSidebar(
+                roomId,
+                {
+                  last_message: msg,
+                  last_message_at: msg?.created_at || new Date().toISOString(),
+                  updated_at: msg?.created_at || new Date().toISOString(),
+                  bump_unread: !isCurrent,
+                  // optional: cũng có thể nhét room vào đây nếu sidebar function mày handle
+                  // room: room,
+                },
+                cur
+              )
             }
 
             if (typeof onRealtimeMessage === 'function') onRealtimeMessage(msg)
 
-            // ✅ chỉ append messages khi đang mở đúng room
             if (!isCurrent) return
 
-            setMessages((prev) => {
-              const existingIds = new Set((prev || []).map((m) => m.id))
-              if (existingIds.has(msg.id)) return prev
-              return [...prev, msg]
+            setMessages(prev => {
+              const arr = prev || []
+              if (arr.length && Number(arr[arr.length - 1]?.id) === Number(msg.id)) return arr
+              const existingIds = new Set(arr.map(m => m.id))
+              if (existingIds.has(msg.id)) return arr
+              return [...arr, msg]
             })
 
             return
           }
 
-          case 'room_updated': {
-            const payload = data || {}
+          // case 'room_updated': {
+          //   if (!roomId) return
+          //   const payload = data || {}
 
-            // ✅ CHỐT: room_updated thường chỉ để bump updated_at / last_message / unread...
-            // Nếu payload có name/displayName mà không chắc đúng, nó sẽ đè mất tên direct đã hydrate.
-            const safePayload = { ...payload }
+          //   // ✅ hydrate room name nếu BE có gửi payload.room
+          //   if (payload?.room) {
+          //     applyRealtimeRoomName(roomId, payload.room, currentRoomId)
+          //   }
 
-            // ✅ Nếu BE gửi kèm room (đã decorate name direct), ưu tiên hydrate từ đây
-            if (payload?.room) {
-              applyRealtimeRoomName(roomId, payload.room, currentRoomId)
-            }
+          //   if (typeof window.__updateRoomSidebar === 'function') {
+          //     window.__updateRoomSidebar(roomId, payload, currentRoomId)
+          //   }
 
-
-            // ❌ không cho overwrite displayName nếu rỗng / không hợp lệ
-            if (safePayload.displayName != null && !String(safePayload.displayName).trim()) {
-              delete safePayload.displayName
-            }
-
-            // ❌ nếu backend bắn room_updated kèm "name" kiểu raw (vd room.name = "direct_12_34"),
-            // thì nó sẽ đè mất partner fullName đã override từ /rooms.
-            // => tốt nhất: đừng update name từ room_updated (trừ khi mày đang làm rename group).
-            if (safePayload.name != null) {
-              // chỉ cho phép update name nếu rõ ràng là rename group (tuỳ mày: set flag từ BE)
-              // ví dụ: payload.kind === 'rename'
-              if (safePayload.kind !== 'rename') {
-                delete safePayload.name
-              }
-            }
-
-            if (typeof window.__updateRoomSidebar === 'function') {
-              window.__updateRoomSidebar(roomId, safePayload, currentRoomId)
-            }
-            return
-          }
-
+          //   return
+          // }
 
           case 'room_deleted': {
             if (typeof window.__removeRoomSidebar === 'function') {
@@ -754,30 +893,33 @@ function ChatMain({
             }
             return
           }
-
+          
           case 'room.joined': {
-            const room = data?.room
-            if (!room || room.id == null) return
+                const room = data?.room
+                if (!room || room.id == null) return
 
-            if (typeof window.__addRoomSidebar === 'function') {
-              window.__addRoomSidebar(room)
-            }
+                // add sidebar
+                if (typeof window.__addRoomSidebar === 'function') {
+                  window.__addRoomSidebar(room)
+                }
 
-            if (room?.type === 'direct') {
-              Promise.resolve()
-                .then(async () => {
-                  const r = await getDirectPartnerName(room.id)
-                  const partnerName = r?.full_name || r?.name || room.name || 'Direct chat'
-                  if (typeof window.__updateRoomSidebar === 'function') {
-                    window.__updateRoomSidebar(room.id, { displayName: partnerName })
-                  }
-                })
-                .catch(() => {})
-            }
+                // hydrate direct name theo roomId từ envelope (chuẩn nhất)
+                if (String(room?.type).toLowerCase() === 'direct') {
+                  Promise.resolve()
+                    .then(async () => {
+                      const r = await getDirectPartnerName(roomId ?? room.id)
+                      const partnerName =
+                        r?.full_name || r?.name || room.displayName || room.name || 'Direct chat'
 
-            return
-          }
+                      if (typeof window.__updateRoomSidebar === 'function') {
+                        window.__updateRoomSidebar(room.id, { displayName: partnerName })
+                      }
+                    })
+                    .catch(() => {})
+                }
 
+                return
+              }
 
           case 'reaction_updated': {
             const payload = data || {}
@@ -802,67 +944,65 @@ function ChatMain({
 
             const payload = data || {}
 
-            // ✅ update seen state
+            // ✅ chỉ update seen state
             upsertRoomSeen(roomId, payload)
-
-            // ✅ realtime hydrate room name (BE gửi kèm payload.room)
-            const cur = selectedRoomRef.current?.id
-            if (payload?.room) {
-              applyRealtimeRoomName(roomId, payload.room, cur)
-            }
 
             return
           }
 
-
           case 'rooms_sync': {
-            const incoming = Array.isArray(data) ? data : (data?.rooms || [])
+            // BE: Data = { rooms: RoomInfoResponse[] }
+            const payload = data || {}
+            const incoming = Array.isArray(payload) ? payload : (payload?.rooms || [])
             if (!Array.isArray(incoming)) return
 
-            console.log('[WS] rooms_sync incoming:', incoming)
-            // ✅ normalize: đảm bảo direct name hiển thị đúng ngay (BE đã override Name rồi)
-            const normalized = incoming.map((r) => ({
-              ...r,
-              displayName: r?.displayName || r?.name || (r?.type === 'direct' ? 'Direct chat' : ''),
-            }))
+            // ✅ BE đã override name cho direct => FE ưu tiên dùng name làm displayName
+            const normalized = incoming
+              .filter(r => r && r.id != null)
+              .map((r) => {
+                const type = String(r?.type || '').toLowerCase()
+                const name = String(r?.name || '').trim()
 
-            // ✅ ưu tiên setRoomsSidebar kiểu merge (giữ unread_count cũ nếu incoming không có)
+                return {
+                  ...r,
+                  type,
+                  // ✅ displayName luôn có giá trị để sidebar render ổn
+                  displayName:
+                    String(r?.displayName || '').trim() ||
+                    name ||
+                    (type === 'direct' ? 'Direct chat' : 'Group'),
+                }
+              })
+
+            // ✅ Ưu tiên setRoomsSidebar merge (đỡ ghi đè state local như unread/seen nếu BE chưa kèm)
             if (typeof window.__setRoomsSidebar === 'function') {
               window.__setRoomsSidebar(normalized, { merge: true })
               return
             }
 
-            // fallback (nếu chưa có __setRoomsSidebar merge) -> update từng room
-            if (typeof window.__addRoomSidebar === 'function' && typeof window.__updateRoomSidebar === 'function') {
-              normalized.forEach((r) => {
-                window.__addRoomSidebar(r)
-                window.__updateRoomSidebar(r.id, r)
-              })
+            // fallback: add + update từng room
+            if (typeof window.__addRoomSidebar === 'function') {
+              normalized.forEach((r) => window.__addRoomSidebar(r))
+            }
+            if (typeof window.__updateRoomSidebar === 'function') {
+              normalized.forEach((r) => window.__updateRoomSidebar(r.id, r))
             }
 
             return
           }
 
+          case "room_unread_update": {
+            const payload = data || {}
+            const rid = Number(payload?.room_id || roomId)
+            if (!rid) return
 
-          case 'room_created': {
-            const room = data
-            if (!room || room.id == null) return
-
-            if (typeof window.__addRoomSidebar === 'function') {
-              window.__addRoomSidebar(room)
-            }
-
-            // ✅ HYDRATE DIRECT NAME (fix room name sai khi realtime)
-            if (room?.type === 'direct') {
-              Promise.resolve()
-                .then(async () => {
-                  const r = await getDirectPartnerName(room.id) // đang dùng room.id như mày load ban đầu
-                  const partnerName = r?.full_name || r?.name || room.name || 'Direct chat'
-                  if (typeof window.__updateRoomSidebar === 'function') {
-                    window.__updateRoomSidebar(room.id, { displayName: partnerName })
-                  }
-                })
-                .catch(() => {})
+            if (typeof window.__updateRoomSidebar === "function") {
+              window.__updateRoomSidebar(rid, {
+                unread_count: Number(payload.unread_count) || 0,
+                // optional: update updated_at/last_message nếu mày muốn bump sort
+                // updated_at: new Date().toISOString(),
+                // last_message: payload.last_message,
+              })
             }
 
             return
@@ -877,12 +1017,30 @@ function ChatMain({
         }
 
 
-    ws.onerror = (err) => {
-      console.error('WS error', err);
-    };
+      const RS = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED']
 
-    ws.onclose = () => {
-    };
+      ws.onopen = () => {
+        console.log('[WS] open', { url: wsUrl, state: RS[ws.readyState] })
+      }
+
+      ws.onerror = (e) => {
+        console.log('[WS] error', {
+          url: wsUrl,
+          state: RS[ws.readyState],
+          event: { type: e?.type, timeStamp: e?.timeStamp },
+        })
+      }
+
+      ws.onclose = (e) => {
+        console.log('[WS] close', {
+          url: wsUrl,
+          state: RS[ws.readyState],
+          code: e?.code,
+          reason: e?.reason,
+          wasClean: e?.wasClean,
+        })
+      }
+
 
     return () => {
       wsRef.current?.close();
@@ -983,14 +1141,48 @@ function ChatMain({
     }
   };
 
-
-
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+    // ✅ nếu đang mở emoji suggestion: ưu tiên điều khiển nó
+    if (emojiSuggest.open && emojiSuggest.items.length > 0) {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setEmojiSuggest(s => ({
+          ...s,
+          active: (s.active - 1 + s.items.length) % s.items.length,
+        }))
+        return
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setEmojiSuggest(s => ({
+          ...s,
+          active: (s.active + 1) % s.items.length,
+        }))
+        return
+      }
+
+      if (e.key === 'Enter') {
+        // Enter lúc này là CHỌN emoji, không send
+        e.preventDefault()
+        const pick = emojiSuggest.items[emojiSuggest.active]
+        applyEmojiSuggestion(pick)
+        return
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        closeEmojiSuggest()
+        return
+      }
     }
-  };
+
+    // ✅ bình thường: Enter gửi
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
+  }
 
   const trimmed = inputValue.trim();
   const canSend =
@@ -1295,8 +1487,22 @@ function ChatMain({
     const room = roomSeenMap[rid] || {}
     const list = Object.values(room)
 
-    return list.filter(u => Number(u?.last_seen_message_id) >= Number(latestMyMessageId))
-  }, [roomSeenMap, selectedRoom?.id, latestMyMessageId])
+    const meId = Number(currentUserId)
+    const targetId = Number(latestMyMessageId)
+
+    // ✅ filter: seen tới latest my msg + exclude me + dedupe theo user_id
+    const mp = new Map()
+    for (const u of list) {
+      if (!u) continue
+      const uid = Number(u.user_id)
+      if (!uid || uid === meId) continue
+      if (Number(u.last_seen_message_id || 0) < targetId) continue
+      if (!mp.has(uid)) mp.set(uid, u)
+    }
+
+    return Array.from(mp.values())
+  }, [roomSeenMap, selectedRoom?.id, latestMyMessageId, currentUserId])
+
 
   useLayoutEffect(() => {
     if (!hasRoom) return
@@ -1430,35 +1636,27 @@ function ChatMain({
                 )}
 
                 {messages.map((msg, idx) => {
-                  const prev = messages[idx - 1];
-                  const isFirstOfDay =
-                    !prev || dayKey(prev?.created_at) !== dayKey(msg?.created_at);
+                  const key =
+                    msg?.id ??
+                    msg?.client_id ??
+                    msg?.temp_id ??
+                    msg?.local_id ??
+                    `${msg?.sender_id || 'u'}_${msg?.created_at || 't'}_${idx}`
 
                   return (
-                    <Fragment key={msg.id}>
-                      {/* {isFirstOfDay && (
-                        <div className="cc-day-divider">
-                          <span className="cc-day-divider-arrow"></span>
-                          <span className="cc-day-divider-text">
-                            {formatDayLabel(msg?.created_at)}
-                          </span>
-                        </div>
-                      )} */}
-
-                    <ChatMessageItem
-                      msg={msg}
-                      currentUserId={currentUserId}
-                      formatTime={formatTime}
-                      onReactMessage={handleReactMessage}
-                      onReplyMessage={handleReplyPick}
-
-                      isLatestMyMessage={Number(msg.id) === Number(latestMyMessageId)}
-                      seenUsers={Number(msg.id) === Number(latestMyMessageId) ? seenUsersForLatestMyMsg : []}
-                      seenCount={Number(msg.id) === Number(latestMyMessageId) ? seenUsersForLatestMyMsg.length : 0}
-                    />
-
+                    <Fragment key={key}>
+                      <ChatMessageItem
+                        msg={msg}
+                        currentUserId={currentUserId}
+                        formatTime={formatTime}
+                        onReactMessage={handleReactMessage}
+                        onReplyMessage={handleReplyPick}
+                        isLatestMyMessage={Number(msg.id) === Number(latestMyMessageId)}
+                        seenUsers={Number(msg.id) === Number(latestMyMessageId) ? seenUsersForLatestMyMsg : []}
+                        seenCount={Number(msg.id) === Number(latestMyMessageId) ? seenUsersForLatestMyMsg.length : 0}
+                      />
                     </Fragment>
-                  );
+                  )
                 })}
 
 
@@ -1571,6 +1769,32 @@ function ChatMain({
               disabled={!canType || sendingLocked}
               onPick={insertAtCaret}
             />
+            {emojiSuggest.open && emojiSuggest.items.length > 0 && (
+              <div className="emoji-suggest">
+                {/* <div className="emoji-suggest-hint">
+                  ↑/↓ chọn • Enter apply • Esc đóng
+                </div> */}
+
+                {emojiSuggest.items.map((it, idx) => (
+                  <button
+                    key={it.key}
+                    type="button"
+                    className={
+                      'emoji-suggest-item' + (idx === emojiSuggest.active ? ' active' : '')
+                    }
+                    onMouseDown={(ev) => {
+                      // onMouseDown để khỏi mất focus/caret
+                      ev.preventDefault()
+                      applyEmojiSuggestion(it)
+                    }}
+                    title={it.key}
+                  >
+                    <span className="emoji-suggest-emoji">{it.emoji}</span>
+                    <span className="emoji-suggest-key">{it.key}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             <textarea
               ref={textareaRef}
@@ -1585,13 +1809,9 @@ function ChatMain({
               // ✅ FIX: khi đang gửi thì READONLY, đừng DISABLED → không rớt focus
               readOnly={sendingLocked}
               value={inputValue}
-              onChange={(e) =>
-                autoEmojiOnChange(e, {
-                  currentValue: inputValue,
-                  setValue: setInputValue,
-                  textareaRef,
-                })
-              }            onKeyDown={handleKeyDown}
+              onChange={handleInputChange}
+
+            onKeyDown={handleKeyDown}
               onPaste={handlePaste}
               // onBlur={() => focusInput(false)} // ✅ lỡ mất focus thì kéo lại (không force)
               rows={1}

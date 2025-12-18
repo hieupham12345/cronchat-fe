@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import './RoomSidebar.css'
 import buildImageUrl from '../../utils/imageHandle'
+import { getUnreadCountsByRooms, getUnreadCountForRoom } from '../../services/chatService'
 
 function RoomSidebar({
   rooms,
@@ -24,6 +25,41 @@ function RoomSidebar({
   // { type: 'error' | 'info', text: string }
   const [confirmCreate, setConfirmCreate] = useState(null)
   // { name: string, memberIds: number[] }
+
+  // ===== SYNC UNREAD FROM DB (on enter / F5) =====
+  useEffect(() => {
+    let cancelled = false
+
+    ;(async () => {
+      try {
+        if (typeof window.__updateRoomSidebar !== 'function') return
+
+        const ids = (rooms || []).map(r => Number(r.id)).filter(Boolean)
+        if (ids.length === 0) return
+
+        const res = await getUnreadCountsByRooms(ids)
+        if (cancelled) return
+
+        const counts = res?.counts
+        if (!counts || typeof counts !== 'object') return
+
+        for (const [roomIdStr, unreadVal] of Object.entries(counts)) {
+          const rid = Number(roomIdStr)
+          if (!rid) continue
+
+          window.__updateRoomSidebar(rid, {
+            unread_count: Number(unreadVal) || 0,
+          })
+        }
+      } catch (e) {
+        // console.error('[unread sync] failed', e)
+      }
+    })()
+
+    return () => { cancelled = true }
+  }, [rooms?.length])
+
+
 
   // ===== FILTER LOCAL USERS (bỏ currentUserId cho đồng nhất) =====
   const localFilteredUsers = useMemo(() => {
@@ -71,6 +107,7 @@ function RoomSidebar({
       setRooms((prev) => (prev || []).filter((r) => Number(r.id) !== Number(roomId)))
     }
 
+
     window.__updateRoomSidebar = (roomId, payload = {}, currentRoomId) => {
       setRooms((prev) => {
         const rid = Number(roomId)
@@ -78,30 +115,35 @@ function RoomSidebar({
         const next = (prev || []).map((r) => {
           if (Number(r.id) !== rid) return r
 
-          const bumpUnread = !!payload.bump_unread
-          const unread = Number(r.unread_count) || 0
+          const hasUnread = payload?.unread_count != null
+          const safeUnread = hasUnread ? (Number(payload.unread_count) || 0) : (Number(r.unread_count) || 0)
+
+          const safePayload = { ...payload }
+          delete safePayload.bump_unread
+          delete safePayload.bumpUnread
 
           return {
             ...r,
-            ...payload,
-            // ✅ giữ unread_count kiểu number
-            unread_count: bumpUnread ? (unread + 1) : unread,
+            ...safePayload,
+            unread_count: safeUnread, // ✅ chỉ set theo DB/payload
           }
         })
 
-        // ✅ nếu room chưa có trong list (ví dụ mới join) thì add luôn
         const found = next.some((r) => Number(r.id) === rid)
         if (!found && payload && Object.keys(payload).length > 0) {
+          const hasUnread = payload?.unread_count != null
           next.unshift({
             id: rid,
             ...payload,
-            unread_count: payload.bump_unread ? 1 : 0,
+            unread_count: hasUnread ? (Number(payload.unread_count) || 0) : 0,
           })
         }
 
         return sortRooms(next)
       })
     }
+
+
 
     return () => {
       // cleanup tránh leak

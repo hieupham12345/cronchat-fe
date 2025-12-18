@@ -409,7 +409,7 @@ function UserSidebar({
       : user?.username?.charAt(0).toUpperCase() || '?')
 
   return (
-    <div class="user-left-box">
+    <div className="user-left-box">
       {/* CURRENT USER (TOP) */}
       <div
         className="user-account-row "

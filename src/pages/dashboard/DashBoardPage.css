@@ -88,6 +88,7 @@
 
 .dashboard-hello {
   font-size: 14px;
+  color: #e5e7eb; /* xám sáng – nhìn rõ trên nền tối */
 }
 
 .logout-btn {

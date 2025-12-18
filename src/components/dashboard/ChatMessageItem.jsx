@@ -47,34 +47,34 @@ function ChatMessageItem({
 
   const hasReply = !!safeMsg.reply?.message_id
 
-// ================================
-// ✅ NEW: day divider system message (0h UTC+7)
-// DB content format: '--- 2025-12-18 ---'
-// ================================
-const isDayDivider = useMemo(() => {
-  if (!isSystem) return false
+  // ================================
+  // ✅ NEW: day divider system message (0h UTC+7)
+  // DB content format: '--- 2025-12-18 ---'
+  // ================================
+  const isDayDivider = useMemo(() => {
+    if (!isSystem) return false
 
-  // ✅ ưu tiên field explicit từ BE (nếu sau này có)
-  if (safeMsg?.system_kind === 'day_change') return true
-  if (safeMsg?.system_type === 'day_change') return true
-  if (safeMsg?.system_event === 'day_change') return true
+    // ✅ ưu tiên field explicit từ BE (nếu sau này có)
+    if (safeMsg?.system_kind === 'day_change') return true
+    if (safeMsg?.system_type === 'day_change') return true
+    if (safeMsg?.system_event === 'day_change') return true
 
-  // ✅ strict check theo format DB hiện tại
-  const c = typeof safeMsg?.content === 'string'
-    ? safeMsg.content.trim()
-    : ''
+    // ✅ strict check theo format DB hiện tại
+    const c = typeof safeMsg?.content === 'string'
+      ? safeMsg.content.trim()
+      : ''
 
-  if (!c) return false
+    if (!c) return false
 
-  // --- YYYY-MM-DD ---
-  return /^---\s*\d{4}-\d{2}-\d{2}\s*---$/.test(c)
-}, [
-  isSystem,
-  safeMsg?.system_kind,
-  safeMsg?.system_type,
-  safeMsg?.system_event,
-  safeMsg?.content,
-])
+    // --- YYYY-MM-DD ---
+    return /^---\s*\d{4}-\d{2}-\d{2}\s*---$/.test(c)
+  }, [
+    isSystem,
+    safeMsg?.system_kind,
+    safeMsg?.system_type,
+    safeMsg?.system_event,
+    safeMsg?.content,
+  ])
 
   // ================================
   // ✅ system class
@@ -332,11 +332,36 @@ const isDayDivider = useMemo(() => {
   // ================================
   // ✅ Seen rendering (Messenger-like)
   // ================================
-  const seenList = useMemo(() => {
+
+  // ✅ FIX 1: filter out ME + dedupe + (optional) only include users who have seen up to this message
+  const seenFiltered = useMemo(() => {
     const arr = Array.isArray(seenUsers) ? seenUsers : []
     const meId = Number(currentUserId)
+    const msgId = Number(safeMsg?.id)
+
+    const mp = new Map() // user_id -> user
+    for (const u of arr) {
+      if (!u) continue
+
+      const uid = Number(u.user_id)
+      if (!uid) continue
+      if (uid === meId) continue
+
+      // ✅ OPTIONAL: chỉ count nếu user đã seen tới message này
+      // Nếu mày không muốn strict, comment 2 dòng dưới
+      const lastSeenId = Number(u.last_seen_message_id || 0)
+      if (msgId && lastSeenId > 0 && lastSeenId < msgId) continue
+
+      if (!mp.has(uid)) mp.set(uid, u)
+    }
+
+    return Array.from(mp.values())
+  }, [seenUsers, currentUserId, safeMsg?.id])
+
+  // ✅ seenList dùng filtered (exclude me)
+  const seenList = useMemo(() => {
+    const arr = Array.isArray(seenFiltered) ? seenFiltered : []
     return arr
-      .filter((u) => u && Number(u.user_id) !== meId)
       .slice(0, 6)
       .map((u) => {
         const name = u.full_name || u.username || 'User'
@@ -348,10 +373,13 @@ const isDayDivider = useMemo(() => {
           initial: (name || '?').trim().charAt(0).toUpperCase() || '?',
         }
       })
-  }, [seenUsers, currentUserId])
+  }, [seenFiltered])
 
+  // ✅ FIX 2: seenNumber phải tính theo filtered (không tính ME nữa)
+  // Nếu BE đã gửi seenCount chuẩn (không include me) thì ưu tiên seenCount,
+  // còn không thì fallback bằng seenFiltered.length
   const seenNumber =
-    typeof seenCount === 'number' ? seenCount : (Array.isArray(seenUsers) ? seenUsers.length : 0)
+    typeof seenCount === 'number' ? seenCount : seenFiltered.length
 
   const showSeen = isMe && !isSystem && !isTemp && isLatestMyMessage && seenNumber > 0
 
@@ -370,7 +398,7 @@ const isDayDivider = useMemo(() => {
           <div className="cc-day-divider">
             <span className="cc-day-divider-line" />
             <span className="cc-day-divider-pill">
-                {safeMsg.content.slice(3, -3)}
+              {safeMsg.content.slice(3, -3)}
             </span>
             <span className="cc-day-divider-line" />
           </div>
