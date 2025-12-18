@@ -991,22 +991,7 @@ function ChatMain({
             return
           }
 
-          case "room_unread_update": {
-            const payload = data || {}
-            const rid = Number(payload?.room_id || roomId)
-            if (!rid) return
 
-            if (typeof window.__updateRoomSidebar === "function") {
-              window.__updateRoomSidebar(rid, {
-                unread_count: Number(payload.unread_count) || 0,
-                // optional: update updated_at/last_message nếu mày muốn bump sort
-                // updated_at: new Date().toISOString(),
-                // last_message: payload.last_message,
-              })
-            }
-
-            return
-          }
 
               default:
                 return
