@@ -52,4 +52,8 @@ The application emphasizes component isolation and clear data flow.
 ### Media
 - Client-side image compression before upload
 - Image preview and grid layout in chat
+
+### UI
+<img width="1878" height="914" alt="{88722B59-D396-4254-9E0F-4D57EF30E333}" src="https://github.com/user-attachments/assets/3dcd2e64-95e9-4820-9580-a59ee49d313a" />
+
 ...
