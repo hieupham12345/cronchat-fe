@@ -1013,3 +1013,94 @@
   object-fit: cover;
   border-radius: 50%;
 }
+
+/* =========================================
+   === NOEL THEME OVERLAY (SIMPLEST VERSION) ===
+   ========================================= */
+
+/* Container chính phủ lên toàn bộ màn hình */
+.xmas-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 99999; /* Đảm bảo nằm trên cùng nhất */
+    pointer-events: none; /* QUAN TRỌNG: Để click xuyên qua */
+}
+
+/* Định nghĩa các phần tử rơi */
+.xmas-item {
+    position: absolute;
+    top: -10%; /* Bắt đầu từ trên màn hình */
+    color: #fff; /* Màu cơ bản cho tuyết */
+    text-shadow: 0 0 5px rgba(0,0,0,0.3); /* Bóng nhẹ để nổi trên nền sáng */
+    user-select: none;
+    animation-name: xmas-fall, xmas-sway;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+    opacity: 0.8;
+}
+
+/* Keyframes rơi từ trên xuống */
+@keyframes xmas-fall {
+    0% { top: -10%; opacity: 0; }
+    10% { opacity: 0.9; }
+    90% { opacity: 0.9; }
+    100% { top: 110%; opacity: 0; } /* Rơi quá màn hình dưới */
+}
+
+/* Keyframes lắc lư nhẹ sang 2 bên */
+@keyframes xmas-sway {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    50% { transform: translateX(30px) rotate(15deg); }
+}
+
+/* --- CẤU HÌNH CÁC LOẠI HẠT --- */
+
+/* Loại 1: Tuyết nhỏ (nhiều nhất) */
+.xmas-item.type-1::before { content: '❄'; font-size: 1em; color: #e1f5fe; }
+/* Loại 2: Tuyết lớn hơn */
+.xmas-item.type-2::before { content: '❅'; font-size: 1.5em; color: #b3e5fc; }
+/* Loại 3: Hộp quà */
+.xmas-item.type-3::before { content: '🎁'; font-size: 1.8em; }
+/* Loại 4: Kẹo gậy */
+.xmas-item.type-4::before { content: '🍬'; font-size: 1.4em; }
+/* Loại 5: Cây thông nhỏ */
+.xmas-item.type-5::before { content: '🎄'; font-size: 1.6em; opacity: 0.7; }
+
+/* --- RANDOM HÓA VỊ TRÍ VÀ TỐC ĐỘ (Set cứng để ko cần JS) --- */
+/* Chúng ta tạo 30 hạt mẫu với thông số khác nhau */
+
+.xmas-item:nth-child(1)  { left: 2%; animation-duration: 7s, 3s; animation-delay: 0s; }
+.xmas-item:nth-child(2)  { left: 5%; animation-duration: 9s, 4s; animation-delay: 2s; font-size: 0.8em; }
+.xmas-item:nth-child(3)  { left: 10%; animation-duration: 11s, 5s; animation-delay: 4s; }
+.xmas-item:nth-child(4)  { left: 15%; animation-duration: 8s, 3.5s; animation-delay: 1s; }
+.xmas-item:nth-child(5)  { left: 22%; animation-duration: 13s, 6s; animation-delay: 3s; font-size: 1.2em; }
+.xmas-item:nth-child(6)  { left: 28%; animation-duration: 10s, 4s; animation-delay: 0.5s; }
+.xmas-item:nth-child(7)  { left: 35%; animation-duration: 15s, 7s; animation-delay: 2.5s; }
+.xmas-item:nth-child(8)  { left: 42%; animation-duration: 12s, 5s; animation-delay: 5s; font-size: 0.9em; }
+.xmas-item:nth-child(9)  { left: 48%; animation-duration: 9s, 3s; animation-delay: 1.5s; }
+.xmas-item:nth-child(10) { left: 55%; animation-duration: 11s, 5.5s; animation-delay: 3.5s; }
+.xmas-item:nth-child(11) { left: 62%; animation-duration: 8s, 4s; animation-delay: 0.2s; }
+.xmas-item:nth-child(12) { left: 70%; animation-duration: 14s, 6.5s; animation-delay: 4.5s; }
+.xmas-item:nth-child(13) { left: 75%; animation-duration: 10s, 5s; animation-delay: 2.8s; font-size: 1.1em; }
+.xmas-item:nth-child(14) { left: 82%; animation-duration: 12s, 4.5s; animation-delay: 1.2s; }
+.xmas-item:nth-child(15) { left: 88%; animation-duration: 9s, 3.5s; animation-delay: 3.8s; }
+.xmas-item:nth-child(16) { left: 94%; animation-duration: 13s, 6s; animation-delay: 0.8s; }
+/* Lặp lại để làm dày thêm */
+.xmas-item:nth-child(17) { left: 3%;  animation-duration: 11s, 4s; animation-delay: 6s; }
+.xmas-item:nth-child(18) { left: 18%; animation-duration: 10s, 5s; animation-delay: 7s; font-size: 0.7em;}
+.xmas-item:nth-child(19) { left: 33%; animation-duration: 14s, 6s; animation-delay: 5.5s; }
+.xmas-item:nth-child(20) { left: 45%; animation-duration: 9s, 3s;  animation-delay: 8s; }
+.xmas-item:nth-child(21) { left: 58%; animation-duration: 12s, 5s; animation-delay: 6.5s; }
+.xmas-item:nth-child(22) { left: 73%; animation-duration: 10s, 4s; animation-delay: 9s; font-size: 1.2em;}
+.xmas-item:nth-child(23) { left: 85%; animation-duration: 13s, 7s; animation-delay: 7.5s; }
+.xmas-item:nth-child(24) { left: 96%; animation-duration: 8s, 3.5s; animation-delay: 8.5s; }
+.xmas-item:nth-child(25) { left: 12%; animation-duration: 15s, 6s; animation-delay: 9.5s; }
+.xmas-item:nth-child(26) { left: 38%; animation-duration: 11s, 5s; animation-delay: 10s; }
+.xmas-item:nth-child(27) { left: 66%; animation-duration: 9s, 4s;  animation-delay: 10.5s; font-size: 0.8em;}
+.xmas-item:nth-child(28) { left: 79%; animation-duration: 13s, 6s; animation-delay: 11s; }
+.xmas-item:nth-child(29) { left: 52%; animation-duration: 10s, 5s; animation-delay: 11.5s; }
+.xmas-item:nth-child(30) { left: 25%; animation-duration: 12s, 4s; animation-delay: 12s; }
