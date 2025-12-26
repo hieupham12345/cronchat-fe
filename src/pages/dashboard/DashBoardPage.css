@@ -164,9 +164,16 @@
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  align-items: stretch;   /* ✅ QUAN TRỌNG: cho con kéo ngang */
+  align-items: stretch;
   flex-direction: row;
-}/* MAIN LAYOUT (SIDEBAR + CHAT) */
+
+  /* ===== BACKGROUND IMAGE ===== */
+  /* background-image: url("src/assets/AAAABTD5IBluJHU26z36aocJP5-LWlluGDLKlhkZx7PC6d9aIyN-Sn8UEKSM0ViKuRB-L1ai9vbJ8Hb0D2sLIqGLBS9jogg_YfMQ1ExP.jpg");
+  background-size: cover;       
+  background-position: center;  
+  background-repeat: no-repeat; */
+}
+
 
 .dashboard-main {
   flex: 1;
@@ -432,6 +439,7 @@
   border-radius: 12px;
   box-sizing: border-box;
   overflow: hidden;
+  
 }
 
 
@@ -542,6 +550,7 @@
   position: relative;
   overflow-y: auto;
   height: 100%;
+
 }
 
 .chat-empty {
@@ -1030,77 +1039,262 @@
     pointer-events: none; /* QUAN TRỌNG: Để click xuyên qua */
 }
 
-/* Định nghĩa các phần tử rơi */
-.xmas-item {
-    position: absolute;
-    top: -10%; /* Bắt đầu từ trên màn hình */
-    color: #fff; /* Màu cơ bản cho tuyết */
-    text-shadow: 0 0 5px rgba(0,0,0,0.3); /* Bóng nhẹ để nổi trên nền sáng */
-    user-select: none;
-    animation-name: xmas-fall, xmas-sway;
-    animation-timing-function: linear, ease-in-out;
-    animation-iteration-count: infinite, infinite;
-    opacity: 0.8;
+/* =========================================
+   === THEME OVERLAY (GENERIC) ===
+   ========================================= */
+
+.theme-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 99999;
+  pointer-events: none;
 }
 
-/* Keyframes rơi từ trên xuống */
+.theme-item {
+  position: absolute;
+  top: -10%;
+  user-select: none;
+  opacity: 0.85;
+}
+
+
+/* =======================
+   🎄 THEME: XMAS
+   ======================= */
+
+.theme-xmas .theme-item {
+  color: #fff;
+  text-shadow: 0 0 5px rgba(0,0,0,0.3);
+  animation-name: xmas-fall, xmas-sway;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
 @keyframes xmas-fall {
-    0% { top: -10%; opacity: 0; }
-    10% { opacity: 0.9; }
-    90% { opacity: 0.9; }
-    100% { top: 110%; opacity: 0; } /* Rơi quá màn hình dưới */
+  0% { top: -10%; opacity: 0; }
+  10% { opacity: 0.9; }
+  90% { opacity: 0.9; }
+  100% { top: 110%; opacity: 0; }
 }
 
-/* Keyframes lắc lư nhẹ sang 2 bên */
 @keyframes xmas-sway {
-    0%, 100% { transform: translateX(0) rotate(0deg); }
-    50% { transform: translateX(30px) rotate(15deg); }
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  50% { transform: translateX(30px) rotate(15deg); }
 }
 
-/* --- CẤU HÌNH CÁC LOẠI HẠT --- */
+/* Types */
+.theme-xmas .theme-item.type-1::before { content: '❄'; font-size: 1em;  color: #e1f5fe; }
+.theme-xmas .theme-item.type-2::before { content: '❅'; font-size: 1.5em; color: #b3e5fc; }
+.theme-xmas .theme-item.type-3::before { content: '🎁'; font-size: 1.8em; }
+.theme-xmas .theme-item.type-4::before { content: '🍬'; font-size: 1.4em; }
+.theme-xmas .theme-item.type-5::before { content: '🎄'; font-size: 1.6em; opacity: 0.7; }
 
-/* Loại 1: Tuyết nhỏ (nhiều nhất) */
-.xmas-item.type-1::before { content: '❄'; font-size: 1em; color: #e1f5fe; }
-/* Loại 2: Tuyết lớn hơn */
-.xmas-item.type-2::before { content: '❅'; font-size: 1.5em; color: #b3e5fc; }
-/* Loại 3: Hộp quà */
-.xmas-item.type-3::before { content: '🎁'; font-size: 1.8em; }
-/* Loại 4: Kẹo gậy */
-.xmas-item.type-4::before { content: '🍬'; font-size: 1.4em; }
-/* Loại 5: Cây thông nhỏ */
-.xmas-item.type-5::before { content: '🎄'; font-size: 1.6em; opacity: 0.7; }
 
-/* --- RANDOM HÓA VỊ TRÍ VÀ TỐC ĐỘ (Set cứng để ko cần JS) --- */
-/* Chúng ta tạo 30 hạt mẫu với thông số khác nhau */
+/* =======================
+   🌧️ THEME: RAIN
+   ======================= */
 
-.xmas-item:nth-child(1)  { left: 2%; animation-duration: 7s, 3s; animation-delay: 0s; }
-.xmas-item:nth-child(2)  { left: 5%; animation-duration: 9s, 4s; animation-delay: 2s; font-size: 0.8em; }
-.xmas-item:nth-child(3)  { left: 10%; animation-duration: 11s, 5s; animation-delay: 4s; }
-.xmas-item:nth-child(4)  { left: 15%; animation-duration: 8s, 3.5s; animation-delay: 1s; }
-.xmas-item:nth-child(5)  { left: 22%; animation-duration: 13s, 6s; animation-delay: 3s; font-size: 1.2em; }
-.xmas-item:nth-child(6)  { left: 28%; animation-duration: 10s, 4s; animation-delay: 0.5s; }
-.xmas-item:nth-child(7)  { left: 35%; animation-duration: 15s, 7s; animation-delay: 2.5s; }
-.xmas-item:nth-child(8)  { left: 42%; animation-duration: 12s, 5s; animation-delay: 5s; font-size: 0.9em; }
-.xmas-item:nth-child(9)  { left: 48%; animation-duration: 9s, 3s; animation-delay: 1.5s; }
-.xmas-item:nth-child(10) { left: 55%; animation-duration: 11s, 5.5s; animation-delay: 3.5s; }
-.xmas-item:nth-child(11) { left: 62%; animation-duration: 8s, 4s; animation-delay: 0.2s; }
-.xmas-item:nth-child(12) { left: 70%; animation-duration: 14s, 6.5s; animation-delay: 4.5s; }
-.xmas-item:nth-child(13) { left: 75%; animation-duration: 10s, 5s; animation-delay: 2.8s; font-size: 1.1em; }
-.xmas-item:nth-child(14) { left: 82%; animation-duration: 12s, 4.5s; animation-delay: 1.2s; }
-.xmas-item:nth-child(15) { left: 88%; animation-duration: 9s, 3.5s; animation-delay: 3.8s; }
-.xmas-item:nth-child(16) { left: 94%; animation-duration: 13s, 6s; animation-delay: 0.8s; }
-/* Lặp lại để làm dày thêm */
-.xmas-item:nth-child(17) { left: 3%;  animation-duration: 11s, 4s; animation-delay: 6s; }
-.xmas-item:nth-child(18) { left: 18%; animation-duration: 10s, 5s; animation-delay: 7s; font-size: 0.7em;}
-.xmas-item:nth-child(19) { left: 33%; animation-duration: 14s, 6s; animation-delay: 5.5s; }
-.xmas-item:nth-child(20) { left: 45%; animation-duration: 9s, 3s;  animation-delay: 8s; }
-.xmas-item:nth-child(21) { left: 58%; animation-duration: 12s, 5s; animation-delay: 6.5s; }
-.xmas-item:nth-child(22) { left: 73%; animation-duration: 10s, 4s; animation-delay: 9s; font-size: 1.2em;}
-.xmas-item:nth-child(23) { left: 85%; animation-duration: 13s, 7s; animation-delay: 7.5s; }
-.xmas-item:nth-child(24) { left: 96%; animation-duration: 8s, 3.5s; animation-delay: 8.5s; }
-.xmas-item:nth-child(25) { left: 12%; animation-duration: 15s, 6s; animation-delay: 9.5s; }
-.xmas-item:nth-child(26) { left: 38%; animation-duration: 11s, 5s; animation-delay: 10s; }
-.xmas-item:nth-child(27) { left: 66%; animation-duration: 9s, 4s;  animation-delay: 10.5s; font-size: 0.8em;}
-.xmas-item:nth-child(28) { left: 79%; animation-duration: 13s, 6s; animation-delay: 11s; }
-.xmas-item:nth-child(29) { left: 52%; animation-duration: 10s, 5s; animation-delay: 11.5s; }
-.xmas-item:nth-child(30) { left: 25%; animation-duration: 12s, 4s; animation-delay: 12s; }
+.theme-rain .theme-item {
+  text-shadow: 0 0 3px rgba(0,0,0,0.25);
+  animation-name: rain-fall, rain-drift;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
+@keyframes rain-fall {
+  0%   { top: -10%; opacity: 0; }
+  5%   { opacity: 0.9; }
+  95%  { opacity: 0.9; }
+  100% { top: 115%; opacity: 0; }
+}
+
+@keyframes rain-drift {
+  0%, 100% { transform: translateX(0) rotate(-10deg); }
+  50%      { transform: translateX(20px) rotate(-10deg); }
+}
+
+/* Types */
+.theme-rain .theme-item.type-1::before { content: '💧'; font-size: 1.2em; }
+.theme-rain .theme-item.type-2::before { content: '💦'; font-size: 1.1em; opacity: 0.8; }
+
+
+.theme-item:nth-child(1)  { left: 2%;  animation-duration: 7s, 3s;  animation-delay: 0s; }
+.theme-item:nth-child(2)  { left: 5%;  animation-duration: 9s, 4s;  animation-delay: 2s; font-size: 0.8em; }
+.theme-item:nth-child(3)  { left: 10%; animation-duration: 11s, 5s; animation-delay: 4s; }
+.theme-item:nth-child(4)  { left: 15%; animation-duration: 8s, 3.5s; animation-delay: 1s; }
+.theme-item:nth-child(5)  { left: 22%; animation-duration: 13s, 6s; animation-delay: 3s; font-size: 1.2em; }
+.theme-item:nth-child(6)  { left: 28%; animation-duration: 10s, 4s; animation-delay: 0.5s; }
+.theme-item:nth-child(7)  { left: 35%; animation-duration: 15s, 7s; animation-delay: 2.5s; }
+.theme-item:nth-child(8)  { left: 42%; animation-duration: 12s, 5s; animation-delay: 5s; font-size: 0.9em; }
+.theme-item:nth-child(9)  { left: 48%; animation-duration: 9s, 3s; animation-delay: 1.5s; }
+.theme-item:nth-child(10) { left: 55%; animation-duration: 11s, 5.5s; animation-delay: 3.5s; }
+.theme-item:nth-child(11) { left: 62%; animation-duration: 8s, 4s; animation-delay: 0.2s; }
+.theme-item:nth-child(12) { left: 70%; animation-duration: 14s, 6.5s; animation-delay: 4.5s; }
+.theme-item:nth-child(13) { left: 75%; animation-duration: 10s, 5s; animation-delay: 2.8s; font-size: 1.1em; }
+.theme-item:nth-child(14) { left: 82%; animation-duration: 12s, 4.5s; animation-delay: 1.2s; }
+.theme-item:nth-child(15) { left: 88%; animation-duration: 9s, 3.5s; animation-delay: 3.8s; }
+.theme-item:nth-child(16) { left: 94%; animation-duration: 13s, 6s; animation-delay: 0.8s; }
+.theme-item:nth-child(17) { left: 3%;  animation-duration: 11s, 4s; animation-delay: 6s; }
+.theme-item:nth-child(18) { left: 18%; animation-duration: 10s, 5s; animation-delay: 7s; font-size: 0.7em;}
+.theme-item:nth-child(19) { left: 33%; animation-duration: 14s, 6s; animation-delay: 5.5s; }
+.theme-item:nth-child(20) { left: 45%; animation-duration: 9s, 3s;  animation-delay: 8s; }
+.theme-item:nth-child(21) { left: 58%; animation-duration: 12s, 5s; animation-delay: 6.5s; }
+.theme-item:nth-child(22) { left: 73%; animation-duration: 10s, 4s; animation-delay: 9s; font-size: 1.2em;}
+.theme-item:nth-child(23) { left: 85%; animation-duration: 13s, 7s; animation-delay: 7.5s; }
+.theme-item:nth-child(24) { left: 96%; animation-duration: 8s, 3.5s; animation-delay: 8.5s; }
+.theme-item:nth-child(25) { left: 12%; animation-duration: 15s, 6s; animation-delay: 9.5s; }
+.theme-item:nth-child(26) { left: 38%; animation-duration: 11s, 5s; animation-delay: 10s; }
+.theme-item:nth-child(27) { left: 66%; animation-duration: 9s, 4s;  animation-delay: 10.5s; font-size: 0.8em;}
+.theme-item:nth-child(28) { left: 79%; animation-duration: 13s, 6s; animation-delay: 11s; }
+.theme-item:nth-child(29) { left: 52%; animation-duration: 10s, 5s; animation-delay: 11.5s; }
+.theme-item:nth-child(30) { left: 25%; animation-duration: 12s, 4s; animation-delay: 12s; }
+
+
+.cc-theme-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.cc-theme-label{
+  font-size:12px;
+  opacity:.8;
+}
+
+.cc-theme-select{
+  padding:6px 10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.25);
+  color: #fff;
+  outline:none;
+}
+
+/* =======================
+   🍬 THEME: CANDY RAIN
+   ======================= */
+
+.theme-candy .theme-item {
+  animation-name: candy-fall, candy-spin;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  opacity: 0.9;
+}
+
+@keyframes candy-fall {
+  0%   { top: -15%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 115%; opacity: 0; }
+}
+
+@keyframes candy-spin {
+  0%   { transform: translateX(0) rotate(0deg); }
+  50%  { transform: translateX(25px) rotate(180deg); }
+  100% { transform: translateX(0) rotate(360deg); }
+}
+
+/* Kẹo tròn */
+.theme-candy .theme-item.type-1::before {
+  content: '🍬';
+  font-size: 1.4em;
+}
+
+/* Kẹo que */
+.theme-candy .theme-item.type-2::before {
+  content: '🍭';
+  font-size: 1.6em;
+}
+
+/* Chocolate / sweet */
+.theme-candy .theme-item.type-3::before {
+  content: '🍫';
+  font-size: 1.5em;
+  opacity: 0.85;
+}
+
+/* ===== THEME SELECT (UserSidebar) ===== */
+.cc-theme-row{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap:10px;
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+.cc-theme-label{
+  font-size: 12px;
+  opacity: 0.8;
+  letter-spacing: 0.2px;
+}
+
+/* wrapper để làm mũi tên custom */
+.cc-theme-select-wrap{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* SELECT chính */
+.cc-theme-select{
+  min-width: 140px;
+  padding: 8px 36px 8px 12px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.25);
+  color: #fff;
+
+  font-size: 13px;
+  outline: none;
+
+  /* remove default arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.cc-theme-select:hover{
+  border-color: rgba(255,255,255,0.22);
+  background: rgba(0,0,0,0.32);
+}
+
+.cc-theme-select:focus{
+  border-color: rgba(160, 220, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(100, 190, 255, 0.16);
+}
+
+/* arrow custom */
+.cc-theme-select-wrap::after{
+  content: "▾";
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  transform: translateY(-1px);
+}
+
+/* Option styling (phụ thuộc browser, Chrome/Edge ok) */
+.cc-theme-select option{
+  background: #0b1220; /* nền dropdown */
+  color: #fff;
+}
+
+/* Optional: nếu muốn dropdown nhìn “đậm” hơn */
+.cc-theme-select option:checked{
+  background: #12213a;
+}

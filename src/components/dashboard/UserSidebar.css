@@ -553,3 +553,48 @@
   }
 }
 
+
+
+/* Noel toggle button */
+.cc-xmas-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  cursor: pointer;
+  user-select: none;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.cc-xmas-toggle:hover {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.22);
+}
+
+.cc-xmas-toggle:active {
+  transform: translateY(0px);
+}
+
+.cc-xmas-toggle .cc-xmas-ico {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.cc-xmas-toggle .cc-xmas-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+
+.cc-xmas-toggle.on {
+  box-shadow: 0 0 0 2px rgba(46, 213, 115, 0.10) inset;
+}
+
+.cc-xmas-toggle.off {
+  opacity: 0.85;
+}

@@ -450,3 +450,13 @@
   color: #fff;
   flex-shrink: 0;
 }
+
+/* ✅ overlay chỉ để nhìn, không được chặn click */
+.xmas-overlay {
+  pointer-events: none !important;
+}
+
+/* chắc kèo thêm luôn */
+.xmas-overlay .xmas-item {
+  pointer-events: none !important;
+}

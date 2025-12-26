@@ -100,6 +100,7 @@ function ChatMain({
   // service upload ảnh (props)
   // ✅ IMPORTANT: service của mày đang chạy theo contract: onUploadRoomImages({ roomId, files })
   onUploadRoomImages,
+
 }) {
   const hasRoom = !!selectedRoom;
 

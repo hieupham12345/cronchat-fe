@@ -20,6 +20,8 @@ function UserSidebar({
   loadingUsers = false,
   userListError = '',
   onSearchUsers, // search user qua API
+  theme,
+  onChangeTheme,
 }) {
   // ===== SEARCH STATE =====
   const [searchTerm, setSearchTerm] = useState('')
@@ -410,7 +412,25 @@ function UserSidebar({
 
   return (
     <div className="user-left-box">
-      {/* CURRENT USER (TOP) */}
+      
+      <div className="cc-theme-row">
+        <span className="cc-theme-label">Theme</span>
+
+        <div className="cc-theme-select-wrap">
+          <select
+            className="cc-theme-select"
+            value={theme || 'off'}
+            onChange={(e) => onChangeTheme?.(e.target.value)}
+            title="Chọn theme"
+          >
+            <option value="off">Off</option>
+            <option value="xmas">Noel 🎄</option>
+            <option value="rain">Rain 🌧️</option>
+            <option value="candy">Candy 🍬</option>
+          </select>
+        </div>
+      </div>
+
       <div
         className="user-account-row "
         onClick={() => {
@@ -433,6 +453,7 @@ function UserSidebar({
           <span className="inline-username">@{user?.username || ''}</span>
         </div>
 
+       
         <div className="inline-actions" />
       </div>
 
@@ -523,8 +544,14 @@ function UserSidebar({
       </div>
               {/* MINI EDIT AVATAR / PROFILE PANEL */}
         {editingUser && (
-          <div className="create-group-overlay"     onClick={closeEditUser}>
-            <div className="user-edit-mini">
+          <div
+            className="create-group-overlay"
+            onClick={closeEditUser}   // click ra ngoài để đóng
+          >
+            <div
+              className="user-edit-mini"
+              onClick={(e) => e.stopPropagation()}  // ⬅️ CHẶN CLICK BÊN TRONG
+            >
               <div className="user-edit-header">
                 <span>Edit profile: {editingUser.username}</span>
                 <button
