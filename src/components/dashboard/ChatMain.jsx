@@ -685,11 +685,11 @@ function ChatMain({
     }
   }, [hasRoom, loadingMessages, messageError, messages]);
 
-  useEffect(() => {
-    if (!hasRoom) return;
-    // đổi room thì auto xuống đáy luôn
-    requestAnimationFrame(() => scrollToBottom(false));
-  }, [hasRoom, selectedRoom?.id, scrollToBottom]);
+  // useEffect(() => {
+  //   if (!hasRoom) return;
+  //   // đổi room thì auto xuống đáy luôn
+  //   requestAnimationFrame(() => scrollToBottom(false));
+  // }, [hasRoom, selectedRoom?.id, scrollToBottom]);
 
 
   // ====== AUTO RESIZE TEXTAREA ======
