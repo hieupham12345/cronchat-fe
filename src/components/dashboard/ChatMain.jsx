@@ -773,11 +773,12 @@ function ChatMain({
   useEffect(() => {
     if (!setMessages) return;
 
-    const wsBase = import.meta.env.VITE_WS_BASE_URL;
-    if (!wsBase) {
-      console.error('VITE_WS_BASE_URL is not defined');
-      return;
-    }
+    // Prefer an explicit ws base; otherwise fall back to the page origin so the
+    // socket goes to the same host that serves the app (nginx then proxies /ws
+    // to the backend). Same-origin is required for the refresh_token cookie.
+    const wsBase =
+      import.meta.env.VITE_WS_BASE_URL ||
+      `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
 
     const wsUrl = `${wsBase}/ws`; // bỏ token
     const ws = new WebSocket(wsUrl);

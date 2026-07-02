@@ -1,4 +1,5 @@
 // vite.config.js
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -18,6 +19,14 @@ export default defineConfig({
     watch: {
       usePolling: true,
       interval: 200
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+    env: {
+      VITE_API_BASE_URL: 'http://api.test',
     },
   },
 })

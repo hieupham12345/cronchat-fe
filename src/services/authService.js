@@ -74,6 +74,25 @@ export function clearAccessToken() {
 }
 
 // ===============================
+//   AUTHENTICATED FETCH
+// ===============================
+// Wraps apiFetch: requires an access token and injects the
+// Authorization header. Every authenticated service call goes through this
+// instead of repeating the token guard + header by hand.
+export async function authFetch(path, options = {}) {
+  const token = getAccessToken();
+  if (!token) throw new Error('Missing access token');
+
+  return apiFetch(path, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+// ===============================
 //   TOKEN VALIDATION
 // ===============================
 export function isTokenValid() {

@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Contains live credentials — never commit
+FRONTEND_HANDOFF.md

@@ -100,10 +100,9 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route
-          path="/dashboard"
-          element={<DashboardPage user={user} setUser={setUser} />}
-        />
+        {/* DashboardPage self-manages its user state from localStorage.
+            It does not read props, so none are passed. */}
+        <Route path="/dashboard" element={<DashboardPage />} />
 
         {/* ✅ Trang admin: thêm AdminRoute check role */}
         <Route

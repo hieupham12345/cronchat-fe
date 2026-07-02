@@ -1,5 +1,7 @@
-import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import buildImageUrl from '../../utils/imageHandle.js'
+import ImagePreviewModal from './ImagePreviewModal.jsx'
+import MessageContextMenu from './MessageContextMenu.jsx'
 
 const REACT_EMOJIS = ['👍', '❤️', '😂', '😮', '😢']
 
@@ -168,21 +170,11 @@ function ChatMessageItem({
     setPreviewSrc(null)
   }, [])
 
-  useEffect(() => {
-    if (!previewOpen) return
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape') closePreview()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [previewOpen, closePreview])
-
   // ================================
   // ✅ Context menu: React + Reply
   // ================================
   const [menuOpen, setMenuOpen] = useState(false)
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
-  const menuRef = useRef(null)
 
   const closeMenu = useCallback(() => setMenuOpen(false), [])
 
@@ -202,29 +194,6 @@ function ChatMessageItem({
     },
     [openMenuAt, isSystem, safeMsg]
   )
-
-  useEffect(() => {
-    if (!menuOpen) return
-
-    const onMouseDown = (e) => {
-      if (!menuRef.current) return
-      if (!menuRef.current.contains(e.target)) closeMenu()
-    }
-
-    const onScroll = () => closeMenu()
-    const onKeyDown = (e) => {
-      if (e.key === 'Escape') closeMenu()
-    }
-
-    window.addEventListener('mousedown', onMouseDown)
-    window.addEventListener('scroll', onScroll, true)
-    window.addEventListener('keydown', onKeyDown)
-    return () => {
-      window.removeEventListener('mousedown', onMouseDown)
-      window.removeEventListener('scroll', onScroll, true)
-      window.removeEventListener('keydown', onKeyDown)
-    }
-  }, [menuOpen, closeMenu])
 
   // ====== emit react: accept emoji OR keyword ======
   const emitReact = useCallback(
@@ -270,19 +239,6 @@ function ChatMessageItem({
       rawMsg: safeMsg,
     })
   }, [closeMenu, onReplyMessage, safeMsg, messageType])
-
-  // clamp menu inside viewport
-  const menuStyle = useMemo(() => {
-    const w = 230
-    const h = 52
-    const pad = 10
-    const vw = typeof window !== 'undefined' ? window.innerWidth : 1200
-    const vh = typeof window !== 'undefined' ? window.innerHeight : 800
-
-    const x = Math.min(menuPos.x, vw - w - pad)
-    const y = Math.min(menuPos.y, vh - h - pad)
-    return { left: x, top: y }
-  }, [menuPos])
 
   // ================================
   // ✅ Reply preview rendering + jump highlight
@@ -529,47 +485,18 @@ function ChatMessageItem({
 
       {/* ✅ MINI CONTEXT MENU */}
       {menuOpen && !isSystem && (
-        <div className="cc-context-menu" style={menuStyle} ref={menuRef}>
-          <div className="cc-context-reactions">
-            {REACT_EMOJIS.map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                className="cc-context-btn"
-                onClick={() => emitReact(emoji)}
-                title={`React ${emoji}`}
-              >
-                <span className="cc-context-emoji">{emoji}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="cc-context-divider" />
-
-          <button type="button" className="cc-context-reply" onClick={emitReply} title="Reply">
-            ↩ Reply
-          </button>
-        </div>
+        <MessageContextMenu
+          x={menuPos.x}
+          y={menuPos.y}
+          emojis={REACT_EMOJIS}
+          onReact={emitReact}
+          onReply={emitReply}
+          onClose={closeMenu}
+        />
       )}
 
       {/* MODAL PREVIEW */}
-      {previewOpen && (
-        <div className="img-preview-overlay" onClick={closePreview}>
-          <div className="img-preview-modal" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="img-preview-close"
-              onClick={closePreview}
-              type="button"
-              aria-label="Close"
-              title="Close"
-            >
-              ✕
-            </button>
-
-            {previewSrc && <img src={previewSrc} alt="preview" className="img-preview-image" />}
-          </div>
-        </div>
-      )}
+      {previewOpen && <ImagePreviewModal src={previewSrc} onClose={closePreview} />}
     </>
   )
 }
